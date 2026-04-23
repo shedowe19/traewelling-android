@@ -1,28 +1,25 @@
-# 🤖 Built with AI Agents
+# Projektbeschreibung: Träwelling Android (Optimiert)
 
-This version of **Träwelling Android** was developed and optimized with the help of **Antigravity**, a powerful AI coding assistant.
+Dieses Repository enthält eine erweiterte und optimierte Version der **Träwelling Android App**. Das Ziel dieser Version ist es, die Datenkonsistenz zwischen der Träwelling-Webseite und der mobilen App zu perfektionieren und gleichzeitig das Benutzererlebnis durch eine moderne, intuitive Benutzeroberfläche zu steigern.
 
-## 🛠 Collaboration Log
+## 🎯 Kernziele
 
-The development process was a collaborative effort between the user and AI, focusing on several key areas:
+1.  **Daten-Integrität:** Sicherstellung, dass alle manuellen Anpassungen (Check-in Zeiten), die auf der Webseite vorgenommen wurden, nahtlos und fehlerfrei in der App reflektiert werden.
+2.  **Visuelle Exzellenz:** Einbindung modernster UI-Elemente in Jetpack Compose, um den Fahrplan und die Reise-Details ansprechend und informativ zu gestalten.
+3.  **Transparenz bei Störungen:** Klare und unmissverständliche Darstellung von Verspätungen und Haltestellenausfällen.
 
-### 1. Data Synchronization & API
-- **Manual Time Overrides:** Implemented logic to fetch and prioritize `manualDeparture` and `manualArrival` from the Träwelling API.
-- **Stopover Enrichment:** Developed a system in `StatusDetailViewModel` to merge HAFAS stopover data with custom Träwelling status information.
+## 🛠 Technische Details
 
-### 2. UI/UX Enhancements (Jetpack Compose)
-- **Dynamic Timeline:** Built a visual journey tracker with smooth transitions and real-time progress indicators.
-- **Disruption Management:** Added visual strike-throughs and prominent badges for cancelled stops.
-- **Personalization:** Created custom, high-contrast badges for "Dein Einstieg" and "Dein Ziel" using premium color palettes and icons.
-- **Smart Logic:** Implemented auto-adjusting "Starthaltestelle" and "Endstation" markers that account for route cancellations.
+### Synchronisation & Logik
+Die App nutzt ein spezialisiertes ViewModel-System (`StatusDetailViewModel`), das HAFAS-Echtzeitdaten mit den individuellen Träwelling-Statusinformationen verknüpft. Dabei werden manuelle Overrides (`manualDeparture` / `manualArrival`) priorisiert behandelt.
 
-### 3. Stability & Polishing
-- Resolved various type-safety issues and compiler warnings in Kotlin.
-- Refined TopAppBar layouts and "Live" status indicators.
-- Optimized performance for large stop lists.
+### UI-Komponenten
+Die Timeline wurde modular aufgebaut (`StopoverItem`), um verschiedene Zustände flexibel abzubilden:
+-   **Berechnete Progress-Lines:** Die Fortschrittslinie zwischen den Haltestellen wird dynamisch basierend auf der aktuellen Zeit und dem Fahrplan berechnet.
+-   **Zustandsbasierte Badges:** Automatische Generierung von Hinweisen wie "STARTHALTESTELLE", "ENDSTATION" oder persönliche Markierungen wie "DEIN EINSTIEG".
 
 ## 🚀 Vision
-The goal was to create the most accurate and visually appealing representation of a train journey, ensuring that the Android app's data is always perfectly in sync with the manual corrections made on the Träwelling web platform.
+Träwelling Android soll die erste Wahl für alle Reisenden sein, die Wert auf Präzision und Ästhetik legen. Diese optimierte Version ist ein großer Schritt in Richtung eines nahtlosen Cross-Platform-Erlebnisses.
 
 ---
-*Developed by Human & AI (Antigravity).*
+*Viel Spaß beim Reisen mit Träwelling!*

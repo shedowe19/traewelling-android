@@ -2,7 +2,6 @@
 
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.0-blue.svg)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-orange.svg)](https://developer.android.com/jetpack/compose)
-[![AI Powered](https://img.shields.io/badge/Built%20with-AI%20Agents-purple.svg)](./AGENTS.md)
 
 Diese Version von **Träwelling Android** wurde speziell optimiert, um eine perfekte Brücke zwischen der Träwelling-Webplattform und dem mobilen Erlebnis zu schlagen. Der Fokus lag dabei auf der präzisen Darstellung von manuell korrigierten Reisedaten und einem erstklassigen User Interface.
 
@@ -31,11 +30,5 @@ Der Haltestellenverlauf wurde komplett neu gestaltet, um maximale Orientierung z
 -   **Networking:** Retrofit & OkHttp
 -   **Image Loading:** Coil
 
-## 🤖 AI Collaboration
-
-Dieses Projekt ist ein Beispiel für moderne Softwareentwicklung Hand-in-Hand mit KI. Die gesamte Logik für die Datenanreicherung und das Timeline-Redesign wurde in enger Zusammenarbeit mit dem KI-Agenten **Antigravity** entwickelt.
-
-Details dazu findest du in der [AGENTS.md](./AGENTS.md).
-
 ---
-*Entwickelt von Human & AI.*
+*Entwickelt für die Träwelling-Community.*
