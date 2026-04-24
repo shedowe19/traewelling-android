@@ -99,9 +99,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: android.content.Intent?) {
+    override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
-        intent?.data?.let { handleDeepLink(it) }
+        intent.data?.let { handleDeepLink(it) }
     }
 
     private fun handleDeepLink(uri: android.net.Uri) {
