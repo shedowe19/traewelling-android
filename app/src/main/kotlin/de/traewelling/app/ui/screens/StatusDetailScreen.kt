@@ -734,19 +734,7 @@ private fun StopoverItem(
                                 .fillMaxWidth()
                                 .fillMaxHeight(partProgress)
                                 .background(activeLineColor)
-                        ) {
-                            if (isCurrentSegment && outgoingProgress <= 0.8f) {
-                                Icon(
-                                    Icons.Default.Train,
-                                    contentDescription = null,
-                                    tint = TealAccent,
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .align(Alignment.BottomCenter)
-                                        .offset(y = 8.dp)
-                                )
-                            }
-                        }
+                        )
                     }
                 }
             } else {
