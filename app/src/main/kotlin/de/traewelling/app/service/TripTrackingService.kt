@@ -238,7 +238,14 @@ class TripTrackingService : Service(), TextToSpeech.OnInitListener {
                             }
 
                             val platformAnnouncement = if (!platform.isNullOrBlank()) " auf Gleis $platform" else ""
-                            val announcement = "Nächste Haltestelle in Kürze, $nextStopName$platformAnnouncement"
+                            val isDestination = nextStop.id == destination?.id
+                            val announcement = if (isDestination) {
+                                "Bitte aussteigen, Endhaltestelle $nextStopName$platformAnnouncement erreicht."
+                            } else if (lastAnnouncedStopId == null) {
+                                "Bitte einsteigen, nächste Haltestelle $nextStopName$platformAnnouncement."
+                            } else {
+                                "Nächste Haltestelle in Kürze, $nextStopName$platformAnnouncement."
+                            }
                             tts?.speak(announcement, TextToSpeech.QUEUE_ADD, null, "TTS_ANNOUNCEMENT")
                             lastAnnouncedStopId = stopId
                         }
