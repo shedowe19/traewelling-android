@@ -166,6 +166,16 @@ fun ProfileScreen(
                                     onItemSelected = { profileViewModel.selectTtsVoice(it) },
                                     defaultLabel = "System-Standard"
                                 )
+
+                                Spacer(Modifier.height(16.dp))
+                                Button(
+                                    onClick = { profileViewModel.testTts() },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Default.PlayArrow, contentDescription = "Test TTS")
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("Stimme testen")
+                                }
                             }
                         }
                     }

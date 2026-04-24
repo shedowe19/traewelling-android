@@ -87,11 +87,16 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     ttsInstance.voices?.toList() ?: emptyList()
                 } catch (e: Exception) { emptyList() }
 
-                _uiState.update {
-                    it.copy(
+                _uiState.update { state ->
+                    val filteredVoices = if (!state.selectedTtsLanguage.isNullOrEmpty()) {
+                        voices.filter { it.locale.toLanguageTag() == state.selectedTtsLanguage }
+                    } else {
+                        voices
+                    }
+                    state.copy(
                         availableTtsEngines = engines,
                         availableLanguages = languages,
-                        availableVoices = voices
+                        availableVoices = filteredVoices
                     )
                 }
             }
@@ -154,7 +159,47 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun selectTtsLanguage(language: String) {
         viewModelScope.launch {
-            prefs.saveTtsSettings(_uiState.value.selectedTtsEngine, language, _uiState.value.selectedTtsVoice)
+            prefs.saveTtsSettings(_uiState.value.selectedTtsEngine, language, "")
+            _uiState.update { state ->
+                state.copy(selectedTtsLanguage = language, selectedTtsVoice = "")
+            }
+            // Update voices based on the new language
+            tts?.let { ttsInstance ->
+                val voices = try {
+                    ttsInstance.voices?.toList() ?: emptyList()
+                } catch (e: Exception) { emptyList() }
+
+                _uiState.update { state ->
+                    val filteredVoices = if (language.isNotEmpty()) {
+                        voices.filter { it.locale.toLanguageTag() == language }
+                    } else {
+                        voices
+                    }
+                    state.copy(availableVoices = filteredVoices)
+                }
+            }
+        }
+    }
+
+    fun testTts() {
+        if (_uiState.value.isTtsEnabled && tts != null) {
+            val language = _uiState.value.selectedTtsLanguage
+            val locale = if (!language.isNullOrEmpty()) Locale.forLanguageTag(language) else Locale.GERMAN
+            val result = tts?.setLanguage(locale)
+
+            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
+                val voiceName = _uiState.value.selectedTtsVoice
+                if (!voiceName.isNullOrEmpty()) {
+                    try {
+                        val availableVoices = tts?.voices
+                        val selectedVoice = availableVoices?.find { it.name == voiceName }
+                        if (selectedVoice != null) {
+                            tts?.voice = selectedVoice
+                        }
+                    } catch (e: Exception) {}
+                }
+                tts?.speak("Dies ist ein Test der Sprachausgabe.", TextToSpeech.QUEUE_FLUSH, null, "TTS_TEST")
+            }
         }
     }
 

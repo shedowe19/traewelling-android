@@ -223,6 +223,20 @@ class TripTrackingService : Service(), TextToSpeech.OnInitListener {
                         val durationToArrival = java.time.Duration.between(now, arrTime)
                         // Announce if arrival is within the next 3 minutes
                         if (durationToArrival.toMinutes() in 0..3) {
+                            // Ensure language and voice are up to date before speaking
+                            val langTag = prefs.getTtsLanguage()
+                            val locale = if (langTag != null) Locale.forLanguageTag(langTag) else Locale.GERMAN
+                            tts?.setLanguage(locale)
+
+                            val voiceName = prefs.getTtsVoice()
+                            if (voiceName != null) {
+                                val availableVoices = tts?.voices
+                                val selectedVoice = availableVoices?.find { it.name == voiceName }
+                                if (selectedVoice != null) {
+                                    tts?.voice = selectedVoice
+                                }
+                            }
+
                             val platformAnnouncement = if (!platform.isNullOrBlank()) " auf Gleis $platform" else ""
                             val announcement = "Nächste Haltestelle in Kürze, $nextStopName$platformAnnouncement"
                             tts?.speak(announcement, TextToSpeech.QUEUE_ADD, null, "TTS_ANNOUNCEMENT")
