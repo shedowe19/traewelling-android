@@ -117,6 +117,18 @@ fun ProfileScreen(
                     }
                     Spacer(Modifier.height(8.dp))
                 }
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Version ${de.traewelling.app.BuildConfig.VERSION_NAME}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        )
+                    }
+                }
             }
         }
     }

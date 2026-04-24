@@ -7,6 +7,10 @@ on:
         description: 'Version Name (e.g. 1.2.3)'
         required: true
         default: '1.0.0'
+      version_code:
+        description: 'Version Code (e.g. 1)'
+        required: true
+        default: '1'
 
 jobs:
   build:
@@ -30,7 +34,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build with Gradle
-      run: ./gradlew assembleRelease
+      run: ./gradlew assembleRelease -PversionName=${{ github.event.inputs.version_name }} -PversionCode=${{ github.event.inputs.version_code }}
 
     - name: Sign APK
       uses: r0adkll/sign-android-release@v1
