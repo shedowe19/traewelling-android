@@ -26,6 +26,9 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import android.speech.tts.TextToSpeech
 import java.util.Locale
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.speech.tts.UtteranceProgressListener
 
 class TripTrackingService : Service(), TextToSpeech.OnInitListener {
 
@@ -76,6 +79,17 @@ class TripTrackingService : Service(), TextToSpeech.OnInitListener {
                         } catch (e: Exception) {}
                     }
                     isTtsInitialized = true
+
+                    tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                        override fun onStart(utteranceId: String?) {}
+                        override fun onDone(utteranceId: String?) {
+                            abandonAudioFocus()
+                        }
+                        @Deprecated("Deprecated in Java")
+                        override fun onError(utteranceId: String?) {
+                            abandonAudioFocus()
+                        }
+                    })
                 }
             }
         }
@@ -145,11 +159,21 @@ class TripTrackingService : Service(), TextToSpeech.OnInitListener {
 
         val stopovers = stopoversResult.getOrNull() ?: return
 
-        val origin = checkin.origin
+val origin = checkin.origin
         val destination = checkin.destination
 
+        val originIndex = stopovers.indexOfFirst { it.id == origin?.id }
+        val destIndex = stopovers.indexOfFirst { it.id == destination?.id }
+
+        val validStopovers = if (originIndex != -1) {
+            val endIdx = if (destIndex != -1) destIndex + 1 else stopovers.size
+            stopovers.subList(originIndex, endIdx)
+        } else {
+            stopovers
+        }
+
         // Enrich stopovers with manual times
-        val enrichedStops = stopovers.map { stop ->
+        val enrichedStops = validStopovers.map { stop ->
             when (stop.id) {
                 origin?.id -> if (origin != null) origin.copy(departureReal = checkin.manualDeparture ?: origin.departureReal) else stop
                 destination?.id -> if (destination != null) destination.copy(arrivalReal = checkin.manualArrival ?: destination.arrivalReal) else stop
@@ -246,6 +270,7 @@ class TripTrackingService : Service(), TextToSpeech.OnInitListener {
                             } else {
                                 "Nächste Haltestelle in Kürze, $nextStopName$platformAnnouncement."
                             }
+                            requestAudioFocus()
                             tts?.speak(announcement, TextToSpeech.QUEUE_ADD, null, "TTS_ANNOUNCEMENT")
                             lastAnnouncedStopId = stopId
                         }
@@ -281,6 +306,34 @@ class TripTrackingService : Service(), TextToSpeech.OnInitListener {
             return if (delayMinutes > 0) delayMinutes else null
         } catch (e: Exception) {
             return null
+        }
+    }
+
+private fun requestAudioFocus() {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                .build()
+            audioManager.requestAudioFocus(focusRequest)
+        } else {
+            @Suppress("DEPRECATION")
+            audioManager.requestAudioFocus(
+                null,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+            )
+        }
+    }
+
+    private fun abandonAudioFocus() {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                .build()
+            audioManager.abandonAudioFocusRequest(focusRequest)
+        } else {
+            @Suppress("DEPRECATION")
+            audioManager.abandonAudioFocus(null)
         }
     }
 
