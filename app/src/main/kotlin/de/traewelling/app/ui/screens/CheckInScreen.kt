@@ -122,7 +122,8 @@ private fun StationSearchStep(viewModel: CheckInViewModel, uiState: CheckInUiSta
                 }
             else ->
                 LazyColumn(Modifier.fillMaxSize()) {
-                    items(uiState.searchResults, key = { "${it.id}_${it.name}" }) { station ->
+                    items(uiState.searchResults.size) { index ->
+                        val station = uiState.searchResults[index]
                         ListItem(
                             headlineContent = {
                                 Text(station.name ?: "–", fontWeight = FontWeight.Medium)

@@ -166,8 +166,16 @@ val tripId = checkin.trip ?: return
 val origin = checkin.origin
         val destination = checkin.destination
 
-        val originIndex = stopovers.indexOfFirst { it.id == origin?.id }
-        val destIndex = stopovers.indexOfFirst { it.id == destination?.id }
+        val originIndex = stopovers.indexOfFirst {
+            it.id == origin?.id ||
+            (it.name == origin?.name && it.name != null) ||
+            (it.evaIdentifier == origin?.evaIdentifier && it.evaIdentifier != null)
+        }
+        val destIndex = stopovers.indexOfFirst {
+            it.id == destination?.id ||
+            (it.name == destination?.name && it.name != null) ||
+            (it.evaIdentifier == destination?.evaIdentifier && it.evaIdentifier != null)
+        }
 
         val validStopovers = if (originIndex != -1) {
             val endIdx = if (destIndex != -1) destIndex + 1 else stopovers.size
