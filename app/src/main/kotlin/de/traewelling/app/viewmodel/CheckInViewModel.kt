@@ -61,7 +61,7 @@ class CheckInViewModel(application: Application) : AndroidViewModel(application)
             _uiState.update { it.copy(isLoading = true) }
             repo.searchStations(query)
                 .onSuccess { stations ->
-                    _uiState.update { it.copy(isLoading = false, searchResults = stations) }
+                    _uiState.update { it.copy(isLoading = false, searchResults = stations.distinctBy { it.id }) }
                 }
                 .onFailure { e ->
                     _uiState.update { it.copy(isLoading = false, error = "Suche fehlgeschlagen: ${e.message}") }

@@ -275,7 +275,12 @@ val origin = checkin.origin
 
                             val platformAnnouncement = if (!platform.isNullOrBlank()) " auf Gleis $platform" else ""
                             val isDestination = nextStop.id == destination?.id
-                            val isOrigin = lastAnnouncedStopId == null
+                            val originStop = checkin.origin
+                            val isOrigin = if (originStop != null) {
+                                nextStop.id == originStop.id || (nextStop.name == originStop.name && originStop.name != null)
+                            } else {
+                                lastAnnouncedStopId == null
+                            }
 
                             val mode = checkin.lineName ?: "Zug"
                             val rawOperator = checkin.operator?.name ?: ""
