@@ -201,8 +201,7 @@ fun StatusDetailScreen(
                 else -> {
                     StatusDetailContent(
                         uiState = uiState,
-                        onUserClick = onUserClick,
-                        onRefresh = viewModel::refresh
+                        onUserClick = onUserClick
                     )
                 }
             }
@@ -213,8 +212,7 @@ fun StatusDetailScreen(
 @Composable
 private fun StatusDetailContent(
     uiState: StatusDetailUiState,
-    onUserClick: (String) -> Unit,
-    onRefresh: () -> Unit
+    onUserClick: (String) -> Unit
 ) {
     val status = uiState.status ?: return
     val checkin = status.checkin
