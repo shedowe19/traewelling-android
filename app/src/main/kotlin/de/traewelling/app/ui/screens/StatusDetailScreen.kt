@@ -211,10 +211,11 @@ fun StatusDetailScreen(
 }
 
 @Composable
+@Suppress("UNUSED_PARAMETER")
 private fun StatusDetailContent(
     uiState: StatusDetailUiState,
     onUserClick: (String) -> Unit,
-    _onRefresh: () -> Unit
+    onRefresh: () -> Unit
 ) {
     val status = uiState.status ?: return
     val checkin = status.checkin
