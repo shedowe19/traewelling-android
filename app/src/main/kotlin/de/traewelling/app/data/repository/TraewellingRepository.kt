@@ -140,7 +140,10 @@ class TraewellingRepository(private val context: Context, private val prefs: Pre
 
         // Ensure the distance of retrieved stations are within the 1km circle since BBox returns a square.
         // Or simply let all BBox stations be shown. For proximity, calculate distance and sort.
-        data.sortedBy { st ->
+        data.distinctBy { st ->
+            // Deduplicate by normalizing the name (e.g. "Kaarst Elchstr." == "Elchstr., Kaarst")
+            st.name?.lowercase()?.replace(Regex("[^a-z0-9äöüß]+"), " ")?.trim()?.split(" ")?.sorted()?.joinToString(" ")
+        }.sortedBy { st ->
             if (st.latitude != null && st.longitude != null) {
                 val dLat = st.latitude - lat
                 val dLon = (st.longitude - lon) * Math.cos(latRad)
