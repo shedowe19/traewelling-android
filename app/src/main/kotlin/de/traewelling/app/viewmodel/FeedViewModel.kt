@@ -24,7 +24,7 @@ data class FeedUiState(
 class FeedViewModel(application: Application) : AndroidViewModel(application) {
 
     private val prefs = PreferencesManager(application)
-    private val repo  = TraewellingRepository(prefs)
+    private val repo  = TraewellingRepository(application, prefs)
 
     private val _uiState = MutableStateFlow(FeedUiState())
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()

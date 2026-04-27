@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
     private val notificationViewModel: NotificationViewModel by viewModels()
     private val userProfileViewModel:  UserProfileViewModel  by viewModels()
     private val statusDetailViewModel: StatusDetailViewModel by viewModels()
+    private val userSearchViewModel:   UserSearchViewModel   by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +77,8 @@ class MainActivity : ComponentActivity() {
                             profileViewModel      = profileViewModel,
                             notificationViewModel = notificationViewModel,
                             userProfileViewModel  = userProfileViewModel,
-                            statusDetailViewModel = statusDetailViewModel
+                            statusDetailViewModel = statusDetailViewModel,
+                            userSearchViewModel   = userSearchViewModel
                         )
                         } else {
                             Box(modifier = Modifier.padding(innerPadding)) {

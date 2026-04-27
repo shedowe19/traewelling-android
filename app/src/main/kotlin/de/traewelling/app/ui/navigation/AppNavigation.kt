@@ -34,7 +34,8 @@ fun MainNavigation(
     profileViewModel: ProfileViewModel,
     notificationViewModel: NotificationViewModel,
     userProfileViewModel: UserProfileViewModel,
-    statusDetailViewModel: StatusDetailViewModel
+    statusDetailViewModel: StatusDetailViewModel,
+    userSearchViewModel: UserSearchViewModel
 ) {
     val navController = rememberNavController()
 
@@ -87,7 +88,8 @@ fun MainNavigation(
                             FeedScreen(
                                 viewModel     = feedViewModel,
                                 onUserClick   = { username -> navController.navigate("userProfile/$username") },
-                                onStatusClick = { statusId -> navController.navigate("statusDetail/$statusId") }
+                                onStatusClick = { statusId -> navController.navigate("statusDetail/$statusId") },
+                                onSearchUsersClick = { navController.navigate("userSearch") }
                             )
                         }
                         Screen.CheckIn -> {
@@ -121,6 +123,14 @@ fun MainNavigation(
                 onStatusClick = { statusId -> navController.navigate("statusDetail/$statusId") }
             )
         }
+        composable("userSearch") {
+            UserSearchScreen(
+                viewModel = userSearchViewModel,
+                onUserClick = { username -> navController.navigate("userProfile/$username") },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable(
             route = "statusDetail/{statusId}",
             arguments = listOf(navArgument("statusId") { type = NavType.IntType })
