@@ -52,29 +52,29 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
             // Load status detail
             repo.getStatusDetail(statusId)
                 .onSuccess { status ->
-                    _uiState.update { it.copy(status = status) }
-                    checkIfOwnStatus(status)
+                    // Enrich status with manual times from the checkin right away
+                    val origin = status.checkin?.origin?.let {
+                        it.copy(departureReal = status.checkin?.manualDeparture ?: it.departureReal)
+                    }
+                    val destination = status.checkin?.destination?.let {
+                        it.copy(arrivalReal = status.checkin?.manualArrival ?: it.arrivalReal)
+                    }
+
+                    val enrichedStatus = status.copy(
+                        checkin = status.checkin?.copy(
+                            origin = origin,
+                            destination = destination
+                        )
+                    )
+
+                    _uiState.update { it.copy(status = enrichedStatus) }
+                    checkIfOwnStatus(enrichedStatus)
 
                     // Load stopovers using the trip ID from the checkin
-                    val tripId = status.checkin?.trip
+                    val tripId = enrichedStatus.checkin?.trip
                     if (tripId != null) {
                         repo.getStopovers(tripId)
                             .onSuccess { stops ->
-                                // Enrich stopovers with manual times from the checkin origin/destination
-                                val origin = status.checkin?.origin?.let {
-                                    it.copy(departureReal = status.checkin?.manualDeparture ?: it.departureReal)
-                                }
-                                val destination = status.checkin?.destination?.let {
-                                    it.copy(arrivalReal = status.checkin?.manualArrival ?: it.arrivalReal)
-                                }
-                                
-                                val enrichedStatus = status.copy(
-                                    checkin = status.checkin?.copy(
-                                        origin = origin,
-                                        destination = destination
-                                    )
-                                )
-                                
                                 val enrichedStops: List<de.traewelling.app.data.model.StopStation> = stops.map { stop ->
                                     when (stop.id) {
                                         origin?.id -> if (origin?.id != null) origin else stop
@@ -86,7 +86,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                                 _uiState.update {
                                     it.copy(
                                         isLoading = false,
-                                        status = enrichedStatus,
+                                        status = enrichedStatus, // Keep the same enriched status
                                         stopovers = enrichedStops,
                                         lastUpdated = System.currentTimeMillis()
                                     )
@@ -125,25 +125,26 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
     private suspend fun refreshSilently(statusId: Int) {
         // Silently update — no loading spinner
         repo.getStatusDetail(statusId).onSuccess { status ->
-            _uiState.update { it.copy(status = status) }
+            // Enrich status with manual times from the checkin right away
+            val origin = status.checkin?.origin?.let {
+                it.copy(departureReal = status.checkin?.manualDeparture ?: it.departureReal)
+            }
+            val destination = status.checkin?.destination?.let {
+                it.copy(arrivalReal = status.checkin?.manualArrival ?: it.arrivalReal)
+            }
 
-            val tripId = status.checkin?.trip
+            val enrichedStatus = status.copy(
+                checkin = status.checkin?.copy(
+                    origin = origin,
+                    destination = destination
+                )
+            )
+
+            _uiState.update { it.copy(status = enrichedStatus) }
+
+            val tripId = enrichedStatus.checkin?.trip
             if (tripId != null) {
                 repo.getStopovers(tripId).onSuccess { stops ->
-                    val origin = status.checkin?.origin?.let {
-                        it.copy(departureReal = status.checkin?.manualDeparture ?: it.departureReal)
-                    }
-                    val destination = status.checkin?.destination?.let {
-                        it.copy(arrivalReal = status.checkin?.manualArrival ?: it.arrivalReal)
-                    }
-                    
-                    val enrichedStatus = status.copy(
-                        checkin = status.checkin?.copy(
-                            origin = origin,
-                            destination = destination
-                        )
-                    )
-                    
                     val enrichedStops: List<de.traewelling.app.data.model.StopStation> = stops.map { stop ->
                         when (stop.id) {
                             origin?.id -> if (origin?.id != null) origin else stop
