@@ -138,12 +138,8 @@ class TraewellingRepository(private val context: Context, private val prefs: Pre
             error("Keine Bahnhöfe in der Nähe (${r.code()})")
         }
 
-        // Ensure the distance of retrieved stations are within the 1km circle since BBox returns a square.
-        // Or simply let all BBox stations be shown. For proximity, calculate distance and sort.
-        data.distinctBy { st ->
-            // Deduplicate by normalizing the name (e.g. "Kaarst Elchstr." == "Elchstr., Kaarst")
-            st.name?.lowercase()?.replace(Regex("[^a-z0-9äöüß]+"), " ")?.trim()?.split(" ")?.sorted()?.joinToString(" ")
-        }.sortedBy { st ->
+        // First sort by distance
+        val sortedData = data.sortedBy { st ->
             if (st.latitude != null && st.longitude != null) {
                 val dLat = st.latitude - lat
                 val dLon = (st.longitude - lon) * Math.cos(latRad)
@@ -152,6 +148,41 @@ class TraewellingRepository(private val context: Context, private val prefs: Pre
                 Double.MAX_VALUE
             }
         }
+
+        // Custom deduplication to handle variations like "Kaarster See" and "Kaarster See, Kaarst"
+        val distinctStations = mutableListOf<TrainStation>()
+        for (st in sortedData) {
+            val isDuplicate = distinctStations.any { existing ->
+                if (st.latitude != null && st.longitude != null && existing.latitude != null && existing.longitude != null) {
+                    val dLat = st.latitude - existing.latitude
+                    val dLon = (st.longitude - existing.longitude) * Math.cos(Math.toRadians(existing.latitude))
+                    val distSq = dLat * dLat + dLon * dLon
+
+                    // Roughly 200m is about 0.0018 degrees. 0.0018^2 = 0.00000324
+                    val isClose = distSq < 0.0000035
+
+                    val name1 = st.name?.lowercase() ?: ""
+                    val name2 = existing.name?.lowercase() ?: ""
+
+                    val name1NoCity = name1.substringBefore(",").trim()
+                    val name2NoCity = name2.substringBefore(",").trim()
+
+                    val tokens1 = name1NoCity.split(Regex("[\\s\\.-]+")).filter { it.length > 2 }.toSet()
+                    val tokens2 = name2NoCity.split(Regex("[\\s\\.-]+")).filter { it.length > 2 }.toSet()
+
+                    val hasOverlap = tokens1.intersect(tokens2).isNotEmpty() || name1.contains(name2NoCity) || name2.contains(name1NoCity)
+
+                    isClose && hasOverlap
+                } else {
+                    st.name == existing.name
+                }
+            }
+            if (!isDuplicate) {
+                distinctStations.add(st)
+            }
+        }
+
+        distinctStations
     }
 
     // ─── Check-in ─────────────────────────────────────────────────────────────
