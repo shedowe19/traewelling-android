@@ -1,11 +1,18 @@
 package de.traewelling.app.data.repository
 
 import de.traewelling.app.data.api.RetrofitClient
+import android.content.Context
+import com.google.gson.Gson
 import de.traewelling.app.data.api.TraewellingApiService
+import de.traewelling.app.data.local.AppDatabase
+import de.traewelling.app.data.local.StatusEntity
 import de.traewelling.app.data.model.*
 import de.traewelling.app.util.PreferencesManager
 
-class TraewellingRepository(private val prefs: PreferencesManager) {
+class TraewellingRepository(private val context: Context, private val prefs: PreferencesManager) {
+    private val database = AppDatabase.getDatabase(context)
+    private val statusDao = database.statusDao()
+    private val gson = Gson()
 
     private suspend fun api(): TraewellingApiService {
         val serverUrl   = prefs.getServerUrl()
@@ -16,13 +23,71 @@ class TraewellingRepository(private val prefs: PreferencesManager) {
     // ─── Feed ─────────────────────────────────────────────────────────────────
 
     suspend fun getDashboard(page: Int = 1): Result<StatusListResponse> = runCatching {
-        val r = api().getDashboard(page)
-        r.body() ?: error("Leere Antwort (${r.code()})")
+        try {
+            val r = api().getDashboard(page)
+            val body = r.body() ?: error("Leere Antwort (${r.code()})")
+
+            // Cache first page
+            if (page == 1) {
+                val entities = body.data?.mapNotNull { status ->
+                    status.id?.let { id ->
+                        StatusEntity(id = id, statusJson = gson.toJson(status), type = "dashboard")
+                    }
+                }
+                if (!entities.isNullOrEmpty()) {
+                    statusDao.clearStatuses("dashboard")
+                    statusDao.insertStatuses(entities)
+                }
+            }
+            body
+        } catch (e: Exception) {
+            // Read from cache if offline
+            if (page == 1) {
+                val cached = statusDao.getStatuses("dashboard")
+                if (cached.isNotEmpty()) {
+                    val statuses = cached.map { gson.fromJson(it.statusJson, Status::class.java) }
+                    StatusListResponse(data = statuses, links = null, meta = null)
+                } else {
+                    throw e
+                }
+            } else {
+                throw e
+            }
+        }
     }
 
     suspend fun getGlobalFeed(page: Int = 1): Result<StatusListResponse> = runCatching {
-        val r = api().getGlobalFeed(page)
-        r.body() ?: error("Leere Antwort (${r.code()})")
+        try {
+            val r = api().getGlobalFeed(page)
+            val body = r.body() ?: error("Leere Antwort (${r.code()})")
+
+            // Cache first page
+            if (page == 1) {
+                val entities = body.data?.mapNotNull { status ->
+                    status.id?.let { id ->
+                        StatusEntity(id = id, statusJson = gson.toJson(status), type = "global")
+                    }
+                }
+                if (!entities.isNullOrEmpty()) {
+                    statusDao.clearStatuses("global")
+                    statusDao.insertStatuses(entities)
+                }
+            }
+            body
+        } catch (e: Exception) {
+            // Read from cache if offline
+            if (page == 1) {
+                val cached = statusDao.getStatuses("global")
+                if (cached.isNotEmpty()) {
+                    val statuses = cached.map { gson.fromJson(it.statusJson, Status::class.java) }
+                    StatusListResponse(data = statuses, links = null, meta = null)
+                } else {
+                    throw e
+                }
+            } else {
+                throw e
+            }
+        }
     }
 
     // ─── Status Actions ───────────────────────────────────────────────────────
@@ -56,7 +121,29 @@ class TraewellingRepository(private val prefs: PreferencesManager) {
 
     suspend fun getNearbyStations(lat: Double, lon: Double): Result<List<TrainStation>> = runCatching {
         val r = api().getNearbyStations(lat, lon)
-        r.body()?.data ?: error("Keine Bahnhöfe in der Nähe (${r.code()})")
+        val json = r.body() ?: error("Leere Antwort (${r.code()})")
+        val dataNode = json.get("data")
+        if (dataNode == null || dataNode.isJsonNull) {
+            error("Keine Bahnhöfe in der Nähe (${r.code()})")
+        } else {
+            if (dataNode.isJsonArray) {
+                val listType = object : com.google.gson.reflect.TypeToken<List<TrainStation>>() {}.type
+                gson.fromJson(dataNode, listType)
+            } else if (dataNode.isJsonObject) {
+                // The API can return a map of stations or a single station object.
+                // Let's check if it has "id" field at the top level
+                if (dataNode.asJsonObject.has("id")) {
+                    val station = gson.fromJson(dataNode, TrainStation::class.java)
+                    listOf(station)
+                } else {
+                    val mapType = object : com.google.gson.reflect.TypeToken<Map<String, TrainStation>>() {}.type
+                    val map: Map<String, TrainStation> = gson.fromJson(dataNode, mapType)
+                    map.values.toList()
+                }
+            } else {
+                emptyList()
+            }
+        }
     }
 
     // ─── Check-in ─────────────────────────────────────────────────────────────
@@ -105,6 +192,11 @@ class TraewellingRepository(private val prefs: PreferencesManager) {
     suspend fun getUserStatuses(username: String, page: Int = 1): Result<StatusListResponse> = runCatching {
         val r = api().getUserStatuses(username, page)
         r.body() ?: error("Keine Fahrten (${r.code()})")
+    }
+
+    suspend fun searchUsers(query: String): Result<List<User>> = runCatching {
+        val r = api().searchUsers(query)
+        r.body()?.data ?: error("Benutzersuche fehlgeschlagen (${r.code()})")
     }
 
     // ─── Status Detail ────────────────────────────────────────────────────────

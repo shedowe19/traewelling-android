@@ -50,7 +50,7 @@ class TripTrackingService : Service(), TextToSpeech.OnInitListener {
     override fun onCreate() {
         super.onCreate()
         prefs = PreferencesManager(applicationContext)
-        repo = TraewellingRepository(prefs)
+        repo = TraewellingRepository(applicationContext, prefs)
         createNotificationChannel()
 
         serviceScope.launch {

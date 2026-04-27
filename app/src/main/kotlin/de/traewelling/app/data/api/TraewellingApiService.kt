@@ -54,7 +54,7 @@ interface TraewellingApiService {
     suspend fun getNearbyStations(
         @Query("latitude")  lat: Double,
         @Query("longitude") lon: Double
-    ): Response<StationSearchResponse>
+    ): Response<com.google.gson.JsonObject>
 
     // ─── Departures — uses numeric station ID, NOT the station name! ──────────
 
@@ -93,6 +93,11 @@ interface TraewellingApiService {
         @Path("username") username: String,
         @Query("page")    page: Int = 1
     ): Response<StatusListResponse>
+
+    @GET("api/v1/user/search")
+    suspend fun searchUsers(
+        @Query("q") query: String
+    ): Response<UserSearchResponse>
 
     // ─── Stopovers (for trip detail view) ─────────────────────────────────────
 

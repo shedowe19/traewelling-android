@@ -9,12 +9,23 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import androidx.annotation.RequiresPermission
+import com.google.android.gms.tasks.CancellationTokenSource
 import de.traewelling.app.data.model.*
 import de.traewelling.app.ui.components.TraewellingTopAppBar
 import de.traewelling.app.viewmodel.CheckInStep
@@ -71,31 +82,77 @@ private fun StationSearchStep(viewModel: CheckInViewModel, uiState: CheckInUiSta
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                      permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (granted) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                @Suppress("MissingPermission")
+                fetchLocation(context, fusedLocationClient, viewModel)
+            }
+        }
+    }
+
     Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = uiState.stationQuery,
-            onValueChange = viewModel::updateStationQuery,
-            label = { Text("Bahnhof suchen") },
-            placeholder = { Text("z.B. Berlin Hbf") },
-            leadingIcon = { Icon(Icons.Default.Search, null) },
-            trailingIcon = {
-                when {
-                    uiState.stationQuery.isNotEmpty() ->
-                        IconButton(onClick = { viewModel.updateStationQuery("") }) {
-                            Icon(Icons.Default.Clear, "Löschen")
-                        }
-                    uiState.isLoading ->
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                }
-            },
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .focusRequester(focusRequester),
-            singleLine = true
-        )
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = uiState.stationQuery,
+                onValueChange = viewModel::updateStationQuery,
+                label = { Text("Bahnhof suchen") },
+                placeholder = { Text("z.B. Berlin Hbf") },
+                leadingIcon = { Icon(Icons.Default.Search, null) },
+                trailingIcon = {
+                    when {
+                        uiState.stationQuery.isNotEmpty() ->
+                            IconButton(onClick = { viewModel.updateStationQuery("") }) {
+                                Icon(Icons.Default.Clear, "Löschen")
+                            }
+                        uiState.isLoading ->
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(focusRequester),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            FilledIconButton(
+                onClick = {
+                    val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    if (hasFine || hasCoarse) {
+                        @Suppress("MissingPermission")
+                        fetchLocation(context, fusedLocationClient, viewModel)
+                    } else {
+                        locationPermissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    }
+                },
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Icon(Icons.Default.LocationOn, contentDescription = "Standort")
+            }
+        }
 
         uiState.error?.let {
             Text(it, color = MaterialTheme.colorScheme.error,
@@ -104,7 +161,7 @@ private fun StationSearchStep(viewModel: CheckInViewModel, uiState: CheckInUiSta
         }
 
         when {
-            uiState.stationQuery.length < 2 ->
+            uiState.stationQuery.length < 2 && uiState.searchResults.isEmpty() && !uiState.isLoading ->
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Default.Train, null,
@@ -139,6 +196,24 @@ private fun StationSearchStep(viewModel: CheckInViewModel, uiState: CheckInUiSta
                     }
                 }
         }
+    }
+}
+
+@RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+private fun fetchLocation(
+    context: Context,
+    fusedLocationClient: com.google.android.gms.location.FusedLocationProviderClient,
+    viewModel: CheckInViewModel
+) {
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    ) {
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
+            .addOnSuccessListener { location ->
+                if (location != null) {
+                    viewModel.searchNearbyStations(location.latitude, location.longitude)
+                }
+            }
     }
 }
 

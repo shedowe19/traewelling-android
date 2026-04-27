@@ -33,7 +33,8 @@ import de.traewelling.app.viewmodel.FeedViewModel
 fun FeedScreen(
     viewModel: FeedViewModel,
     onUserClick: (String) -> Unit = {},
-    onStatusClick: (Int) -> Unit = {}
+    onStatusClick: (Int) -> Unit = {},
+    onSearchUsersClick: () -> Unit = {}
 ) {
     val uiState     by viewModel.uiState.collectAsState()
     val listState   = rememberLazyListState()
@@ -74,6 +75,9 @@ fun FeedScreen(
             TraewellingTopAppBar(
                 title = "Träwelling",
                 actions = {
+                    IconButton(onClick = onSearchUsersClick) {
+                        Icon(Icons.Default.Search, "Benutzer suchen")
+                    }
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(Icons.Default.Refresh, "Aktualisieren")
                     }

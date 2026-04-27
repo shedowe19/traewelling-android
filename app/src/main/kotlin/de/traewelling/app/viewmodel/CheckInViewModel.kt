@@ -43,7 +43,7 @@ data class CheckInUiState(
 class CheckInViewModel(application: Application) : AndroidViewModel(application) {
 
     private val prefs = PreferencesManager(application)
-    private val repo  = TraewellingRepository(prefs)
+    private val repo  = TraewellingRepository(application, prefs)
 
     private val _uiState = MutableStateFlow(CheckInUiState())
     val uiState: StateFlow<CheckInUiState> = _uiState.asStateFlow()
@@ -51,6 +51,32 @@ class CheckInViewModel(application: Application) : AndroidViewModel(application)
     private var searchJob: Job? = null
 
     // ─── Step 1: Station search ───────────────────────────────────────────────
+
+    fun searchNearbyStations(lat: Double, lon: Double) {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null, stationQuery = "Stationen in der Nähe...") }
+            repo.getNearbyStations(lat, lon)
+                .onSuccess { stations ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            searchResults = stations.distinctBy { st -> st.id },
+                            stationQuery = "Nahegelegene Stationen"
+                        )
+                    }
+                }
+                .onFailure { e ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Standortsuche fehlgeschlagen: ${e.message}",
+                            stationQuery = ""
+                        )
+                    }
+                }
+        }
+    }
 
     fun updateStationQuery(query: String) {
         _uiState.update { it.copy(stationQuery = query, searchResults = emptyList(), error = null) }

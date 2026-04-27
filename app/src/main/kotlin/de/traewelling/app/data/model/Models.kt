@@ -151,6 +151,12 @@ data class StopStation(
     @SerializedName("isDepartureDelayed") val isDepartureDelayed: Boolean?
 )
 
+// ─── User Search ──────────────────────────────────────────────────────────────
+
+data class UserSearchResponse(
+    val data: List<User>?
+)
+
 // ─── Station Search ───────────────────────────────────────────────────────────
 
 data class StationSearchResponse(

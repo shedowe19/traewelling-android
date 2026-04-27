@@ -23,7 +23,7 @@ data class UserProfileUiState(
 class UserProfileViewModel(application: Application) : AndroidViewModel(application) {
 
     private val prefs = PreferencesManager(application)
-    private val repo  = TraewellingRepository(prefs)
+    private val repo  = TraewellingRepository(application, prefs)
 
     private val _uiState = MutableStateFlow(UserProfileUiState())
     val uiState: StateFlow<UserProfileUiState> = _uiState.asStateFlow()

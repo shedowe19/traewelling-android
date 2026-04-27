@@ -31,7 +31,7 @@ data class ProfileUiState(
 class ProfileViewModel(application: Application) : AndroidViewModel(application), TextToSpeech.OnInitListener {
 
     private val prefs = PreferencesManager(application)
-    private val repo  = TraewellingRepository(prefs)
+    private val repo  = TraewellingRepository(application, prefs)
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
