@@ -119,17 +119,21 @@ class TraewellingRepository(private val context: Context, private val prefs: Pre
         r.body()?.data ?: error("Keine Bahnhöfe gefunden (${r.code()})")
     }
 
-    suspend fun getNearbyStations(lat: Double, lon: Double): Result<List<TrainStation>> = runCatching {
-        val r = api().getNearbyStations(lat, lon)
+    suspend fun getNearbyStations(lat: Double, lon: Double, distance: Int? = null): Result<List<TrainStation>> = runCatching {
+        val r = api().getNearbyStations(lat, lon, distance)
         if (!r.isSuccessful) {
             error("Keine Bahnhöfe in der Nähe (${r.code()})")
         }
-        val json = r.body() ?: error("Leere Antwort (${r.code()})")
+        val responseBody = r.body() ?: error("Leere Antwort (${r.code()})")
+        val json = responseBody.asJsonObject
         val dataNode = json.get("data")
         if (dataNode == null || dataNode.isJsonNull) {
             error("Keine Bahnhöfe in der Nähe (${r.code()})")
+        } else if (dataNode.isJsonArray) {
+            val type = object : com.google.gson.reflect.TypeToken<List<TrainStation>>() {}.type
+            gson.fromJson<List<TrainStation>>(dataNode, type)
         } else {
-            // The API returns a single StationResource object (not an array).
+            // The API returns a single StationResource object
             // Wrap it in a list for consistency with searchStations().
             val station = gson.fromJson(dataNode, TrainStation::class.java)
             listOf(station)
