@@ -2,30 +2,50 @@
 
 ## Zweck
 
-Ermöglicht dem Nutzer, Haltestellen zu suchen, Verbindungen abzufragen und letztendlich in einen Zug oder Bus einzuchecken.
+Ermöglicht dem Nutzer, Haltestellen zu suchen, Verbindungen abzufragen und letztendlich in einen Zug, Bus oder eine Tram einzuchecken. Dies ist die Hauptfunktionalität der Träwelling-App.
 
 ## Kontext
 
-Dies ist die Hauptfunktionalität der Träwelling-Plattform, über die Nutzer ihre Reise dokumentieren.
+Der Check-in Prozess führt den Nutzer schrittweise von der Ortung/Suche bis zur Bestätigung der Fahrt. Die UI ist primär im `CheckInScreen` zu finden, der Teil des zentralen HorizontalPagers ist.
 
 ## Wichtige Dateien
 
 - `app/src/main/kotlin/de/traewelling/app/ui/screens/CheckInScreen.kt`
 - `app/src/main/kotlin/de/traewelling/app/viewmodel/CheckInViewModel.kt`
 
-## Verhalten
+## Verhalten und Ablauf
 
-Der Nutzer sucht eine Station. Die Ergebnisse werden von der API geladen und angezeigt. Wichtig ist die Deduplizierung von HAFAS-Ergebnissen im ViewModel, bevor sie an Jetpack Compose weitergegeben werden. Anschließend kann eine Fahrt aus den Abfahrten (`Departures`) ausgewählt und der eigentliche Check-In Request (`CheckInRequest`) abgesetzt werden.
+Der typische Ablauf eines Check-ins nutzt mehrere API-Endpunkte nacheinander:
+
+1. **Bahnhofsauswahl (Start):**
+   - Entweder über die Textsuche (`GET /api/v1/trains/station/autocomplete/{query}`)
+   - Oder über die Ortung (`GET /api/v1/stations` mit Koordinaten der Bounding-Box)
+   - *Wichtig:* Stationsergebnisse müssen dedupliziert werden (z.B. nach Nähe und Namen).
+
+2. **Abfahrtsauswahl:**
+   - Sobald ein Startbahnhof gewählt ist, werden die Abfahrten geladen (`GET /api/v1/station/{id}/departures`).
+   - Die `id` des Bahnhofs (numerisch) muss verwendet werden.
+
+3. **Zielauswahl (Trip Detail):**
+   - Wählt der Nutzer eine Abfahrt, muss der Zielbahnhof bestimmt werden.
+   - Dazu wird die gesamte Route der Fahrt geladen (`GET /api/v1/trains/trip` mit `hafasTripId` und `lineName`).
+   - Die App zeigt die Liste der kommenden Haltestellen an.
+
+4. **Der eigentliche Check-in:**
+   - Wenn Start, Fahrt und Ziel bekannt sind, wird der Check-in durchgeführt.
+   - `POST /api/v1/trains/checkin` mit `CheckInRequest` (Start, Ziel, Fahrt-ID, etc.).
+   - Manuelle Verspätungs-Overrides (`manualDeparture`, `manualArrival`), die die API zurückgibt, müssen direkt ins Datenmodell gemerged werden, um UI-Flackern zu vermeiden.
 
 ## Abhängigkeiten
 
-- **TraewellingApiService**: Zum Abfragen von Stations, Departures und Trips sowie für den finalen POST-Request für den Check-In.
+- **TraewellingApiService**: Zum Abfragen der nötigen Daten und Absenden des Check-ins.
+- **FusedLocationProviderClient**: Wird genutzt, um GPS-Koordinaten für die "In der Nähe" Suche zu generieren.
 
 ## Offene Fragen
 
-- TODO: Detailbetrachtung der Deduplizierungslogik bei Haltestellen, da APIs häufig Duplikate liefern.
+- TODO: Detailbetrachtung der Deduplizierungslogik bei Haltestellen, da APIs häufig Duplikate (teilweise mit fast identischen Koordinaten und Namen) liefern.
 
 ## Verwandte Seiten
 
 - [[api/ueberblick]]
-- [[features/README]]
+- [[api/externe-schnittstellen]]
