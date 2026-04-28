@@ -1,9 +1,9 @@
-# 🚅 Träwelling Android (Optimierte Version)
+# 🚅 Routely (Optimierte Version)
 
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.0-blue.svg)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-orange.svg)](https://developer.android.com/jetpack/compose)
 
-Diese Version von **Träwelling Android** wurde speziell optimiert, um eine perfekte Brücke zwischen der Träwelling-Webplattform und dem mobilen Erlebnis zu schlagen. Der Fokus lag dabei auf der präzisen Darstellung von manuell korrigierten Reisedaten und einem erstklassigen User Interface.
+Diese Version von **Routely** wurde speziell optimiert, um eine perfekte Brücke zwischen der Träwelling-Webplattform und dem mobilen Erlebnis zu schlagen. Der Fokus lag dabei auf der präzisen Darstellung von manuell korrigierten Reisedaten und einem erstklassigen User Interface.
 
 ## ✨ Highlights der Optimierung
 

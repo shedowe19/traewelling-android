@@ -6,7 +6,7 @@ Dokumentiert, was das Projekt macht und für wen es gedacht ist.
 
 ## Kontext
 
-**Träwelling Android** ist ein mobiler Client für die Träwelling-Plattform, eine Anwendung für den öffentlichen Personennahverkehr (ÖPNV) zum Check-in in Zügen und Bussen.
+**Routely** ist ein mobiler Client für die Träwelling-Plattform, eine Anwendung für den öffentlichen Personennahverkehr (ÖPNV) zum Check-in in Zügen und Bussen.
 
 ## Hauptfunktionen
 

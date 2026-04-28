@@ -70,7 +70,7 @@ fun SetupScreen(viewModel: AuthViewModel) {
             Spacer(Modifier.height(16.dp))
             
             Text(
-                text = "Träwelling",
+                text = "Routely",
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White,

@@ -73,7 +73,7 @@ fun FeedScreen(
     Scaffold(
         topBar = {
             TraewellingTopAppBar(
-                title = "Träwelling",
+                title = "Routely",
                 actions = {
                     IconButton(onClick = onSearchUsersClick) {
                         Icon(Icons.Default.Search, "Benutzer suchen")
