@@ -11,7 +11,7 @@ Wichtig:
 - Falls keine Struktur vorhanden ist, erstelle eine neue unter `docs/wiki/`.
 - Schreibe alle Wiki-Inhalte auf Deutsch.
 - Nutze Markdown.
-- Verwende interne Wiki-Links im Stil `[[Seitenname]]`, wo sinnvoll.
+- Verwende für alle internen Links relative Markdown-Links im Format `[Text](./pfad/datei.md)`. KEINE `[[Wiki-Syntax]]` verwenden, da GitHub diese nicht interpretiert.
 - Halte die Inhalte sachlich, präzise und wartbar.
 - Markiere Unsicherheiten klar mit `TODO:`, `Unklar:` oder `Annahme:`.
 - Dokumentiere keine erfundenen Details.
@@ -68,7 +68,7 @@ Nach Abschluss einer Änderung muss der Agent erneut prüfen:
 - Ist eine bestehende Wiki-Seite veraltet?
 - Gibt es neue Zusammenhänge zwischen Modulen?
 - Müssen neue Seiten oder Unterseiten erstellt werden?
-- Müssen `[[Wiki-Links]]` ergänzt werden?
+- Müssen Links ergänzt werden?
 - Müssen offene Fragen dokumentiert werden?
 
 Wenn ja, aktualisiere das Wiki im selben Arbeitsdurchlauf.
@@ -82,11 +82,8 @@ Untersuche die vorhandene Projektstruktur.
 Lies wichtige Dateien wie:
 
 - `README.md`
-- `package.json`
-- `pyproject.toml`
-- `Cargo.toml`
-- `composer.json`
-- `pom.xml`
+- `build.gradle.kts` / `settings.gradle.kts`
+- `app/build.gradle.kts`
 - Konfigurationsdateien
 - vorhandene Dokumentation
 - zentrale Quellcode-Ordner
@@ -106,7 +103,7 @@ Erkenne:
 
 Das Wiki soll nicht nur aus flachen Einzelseiten bestehen. Es muss sinnvoll in Unterordner und Unterseiten gegliedert werden.
 
-Wenn noch kein Wiki vorhanden ist, erstelle folgende Struktur:
+Die Struktur für dieses Android/Kotlin-Projekt:
 
 ```text
 docs/wiki/
@@ -128,7 +125,22 @@ docs/wiki/
 │   ├── build.md
 │   └── deployment.md
 ├── module/
-│   └── README.md
+│   ├── README.md
+│   ├── auth.md
+│   ├── auth-pkce.md
+│   ├── checkin.md
+│   ├── feed.md
+│   ├── notifications.md
+│   ├── profile.md
+│   ├── status-detail.md
+│   ├── trip-tracking.md
+│   ├── user-profile.md
+│   ├── user-search.md
+│   └── widget.md
+├── ui/
+│   ├── screens.md
+│   ├── komponenten.md
+│   └── theme.md
 ├── api/
 │   ├── ueberblick.md
 │   ├── interne-schnittstellen.md
@@ -141,7 +153,8 @@ docs/wiki/
 ├── konfiguration/
 │   ├── umgebungsvariablen.md
 │   ├── config-dateien.md
-│   └── secrets-und-sicherheit.md
+│   ├── secrets-und-sicherheit.md
+│   └── preferences-manager.md
 ├── entscheidungen/
 │   ├── README.md
 │   └── adr-template.md
@@ -154,232 +167,34 @@ docs/wiki/
 
 Der Agent darf zusätzliche Unterordner anlegen, wenn das Projekt dadurch besser dokumentiert wird.
 
-Beispiele:
-
-```text
-docs/wiki/module/authentication.md
-docs/wiki/module/billing.md
-docs/wiki/features/user-login.md
-docs/wiki/features/export.md
-docs/wiki/api/rest-endpunkte.md
-docs/wiki/api/webhooks.md
-docs/wiki/daten/user-model.md
-docs/wiki/entscheidungen/2026-04-26-auth-strategie.md
-```
-
 ---
 
-# Inhalte der Hauptseiten
+# Verlinkungsregeln
 
-## `docs/wiki/index.md`
-
-Enthalten soll:
-
-- kurzer Einstieg in das Wiki
-- Links zu allen wichtigen Bereichen
-- Erklärung, wie das Wiki gepflegt werden soll
-- Hinweis, dass Code die Quelle der Wahrheit ist
-
-Beispielstruktur:
+**Wichtig:** Verwende ausschließlich relative Markdown-Links. GitHub unterstützt keine `[[Wiki-Syntax]]`.
 
 ```markdown
-# Projekt-Wiki
+# Korrekt:
+- [Architektur Überblick](./architektur/ueberblick.md)
+- [API Overview](./api/ueberblick.md)
 
-Dieses Wiki ist das Langzeitgedächtnis des Projekts. Es erklärt Architektur, Module, Features, Schnittstellen, Datenmodelle, Konfiguration und technische Entscheidungen.
-
-Code ist die Quelle der Wahrheit. Das Wiki erklärt die Quelle der Wahrheit.
-
-## Projekt
-
-- [[projekt/ueberblick]]
-- [[projekt/ziele]]
-- [[projekt/begriffe]]
-
-## Architektur
-
+# Falsch:
 - [[architektur/ueberblick]]
-- [[architektur/datenfluss]]
-- [[architektur/module]]
-- [[architektur/entscheidungen]]
-- [[architektur/externe-abhaengigkeiten]]
-
-## Entwicklung
-
-- [[entwicklung/setup]]
-- [[entwicklung/lokale-entwicklung]]
-- [[entwicklung/tests]]
-- [[entwicklung/build]]
-- [[entwicklung/deployment]]
-
-## Module
-
-- [[module/README]]
-
-## Features
-
-- [[features/README]]
-
-## API und Schnittstellen
-
 - [[api/ueberblick]]
-- [[api/interne-schnittstellen]]
-- [[api/externe-schnittstellen]]
-
-## Daten
-
-- [[daten/datenmodell]]
-- [[daten/datenbank]]
-- [[daten/schemas]]
-- [[daten/migrationen]]
-
-## Konfiguration
-
-- [[konfiguration/umgebungsvariablen]]
-- [[konfiguration/config-dateien]]
-- [[konfiguration/secrets-und-sicherheit]]
-
-## Entscheidungen
-
-- [[entscheidungen/README]]
-- [[entscheidungen/adr-template]]
-
-## Weitere Seiten
-
-- [[glossar]]
-- [[offene-fragen]]
-- [[wiki-pflege]]
 ```
 
-## `docs/wiki/projekt/ueberblick.md`
-
-Dokumentiere:
-
-- Was macht das Projekt?
-- Für wen ist es gedacht?
-- Welche Hauptfunktionen gibt es?
-- Welche Technologien werden verwendet?
-
-## `docs/wiki/architektur/ueberblick.md`
-
-Dokumentiere:
-
-- grobe Systemarchitektur
-- wichtige Schichten, Services oder Module
-- Datenfluss, soweit erkennbar
-- externe Abhängigkeiten
-
-## `docs/wiki/entwicklung/setup.md`
-
-Dokumentiere:
-
-- lokales Setup
-- Installation
-- Entwicklungsbefehle
-- benötigte Tools
-- Testbefehle
-- Build- oder Deploy-Hinweise, falls erkennbar
-
-## `docs/wiki/module/README.md`
-
-Dokumentiere:
-
-- wichtige Ordner und Dateien
-- zentrale Komponenten
-- Verantwortlichkeiten der Module
-- Links auf einzelne Modul-Unterseiten
-
-## `docs/wiki/daten/datenmodell.md`
-
-Dokumentiere:
-
-- wichtige Datenstrukturen
-- Datenbanktabellen
-- Models
-- Schemas
-- Beziehungen, falls erkennbar
-- Unsicherheiten
-
-## `docs/wiki/api/ueberblick.md`
-
-Dokumentiere:
-
-- interne und externe APIs
-- Routen
-- Endpunkte
-- Events
-- Hooks
-- Services
-- Eingaben und Ausgaben grob, sofern erkennbar
-
-## `docs/wiki/konfiguration/umgebungsvariablen.md`
-
-Dokumentiere:
-
-- relevante Umgebungsvariablen
-- Zweck der Variable
-- ob sie optional oder erforderlich ist, falls erkennbar
-- niemals echte Secret-Werte
-
-Beispiel:
+Jede Wiki-Seite soll am Ende einen Abschnitt "Verwandte Seiten" enthalten:
 
 ```markdown
-| Variable | Zweck | Erforderlich | Hinweis |
-|---|---|---|---|
-| `DATABASE_URL` | Verbindungsstring zur Datenbank | Unklar | Wert nicht dokumentieren |
-| `API_KEY` | Secret für externen Dienst | Unklar | Wert nicht dokumentieren |
+## Verwandte Seiten
+
+- [Architektur Überblick](./architektur/ueberblick.md)
+- [API Überblick](./api/ueberblick.md)
 ```
-
-## `docs/wiki/entscheidungen/README.md`
-
-Dokumentiere:
-
-- Übersicht technischer Entscheidungen
-- Links zu ADR-Dateien
-- kurze Zusammenfassung wichtiger Entscheidungen
-
-## `docs/wiki/glossar.md`
-
-Dokumentiere:
-
-- projektspezifische Begriffe
-- Abkürzungen
-- Fachbegriffe mit Wiki-Links
-
-## `docs/wiki/offene-fragen.md`
-
-Dokumentiere:
-
-- unklare Punkte
-- fehlende Dokumentation
-- Risiken
-- Annahmen
-- Punkte, die ein Mensch prüfen sollte
 
 ---
 
-# Regeln für neue Wiki-Seiten
-
-Wenn ein neues Feature, Modul oder Konzept auftaucht, das noch nicht dokumentiert ist, soll der Agent eine eigene Seite dafür anlegen.
-
-## Namensregeln
-
-- Dateinamen klein schreiben
-- Wörter mit Bindestrich trennen
-- keine Leerzeichen
-- deutsche Namen verwenden, wenn sinnvoll
-- technische Eigennamen beibehalten
-- Seiten in passende Unterordner einsortieren
-
-Beispiele:
-
-```text
-user-authentication.md
-payment-provider.md
-datenimport.md
-rollen-und-rechte.md
-```
-
-## Vorlage für neue Seiten
+# Vorlage für neue Seiten
 
 Jede neue Seite soll mindestens enthalten:
 
@@ -396,8 +211,7 @@ Wo wird es im Projekt verwendet?
 
 ## Wichtige Dateien
 
-- `pfad/zur/datei.ts`
-- `pfad/zum/modul.py`
+- `app/src/main/kotlin/de/traewelling/app/module/File.kt`
 
 ## Verhalten
 
@@ -413,8 +227,8 @@ Welche anderen Module, Services oder APIs werden verwendet?
 
 ## Verwandte Seiten
 
-- [[architektur/ueberblick]]
-- [[api/ueberblick]]
+- [Architektur Überblick](./architektur/ueberblick.md)
+- [API Überblick](./api/ueberblick.md)
 ```
 
 ---
@@ -445,36 +259,6 @@ Der Index soll als Einstiegspunkt dienen und die Wiki-Struktur erklären.
 
 ---
 
-# Verlinkungsregeln
-
-Das Wiki soll stark vernetzt sein.
-
-Der Agent soll passende interne Links setzen:
-
-```markdown
-Siehe auch [[architektur/ueberblick]].
-Die Authentifizierung ist in [[module/authentication]] beschrieben.
-Die API-Endpunkte stehen unter [[api/rest-endpunkte]].
-```
-
-Jede Wiki-Seite soll am Ende einen Abschnitt enthalten:
-
-```markdown
-## Verwandte Seiten
-
-- [[...]]
-```
-
-Wenn keine verwandten Seiten bekannt sind:
-
-```markdown
-## Verwandte Seiten
-
-- TODO: Verwandte Seiten ergänzen.
-```
-
----
-
 # Entscheidungsdokumentation
 
 Wenn während der Arbeit eine technische Entscheidung getroffen oder sichtbar wird, muss sie dokumentiert werden.
@@ -485,41 +269,7 @@ Für größere Entscheidungen eine eigene ADR-Datei anlegen:
 docs/wiki/entscheidungen/YYYY-MM-DD-kurzer-titel.md
 ```
 
-Vorlage:
-
-```markdown
-# Entscheidung: Kurzer Titel
-
-## Datum
-
-YYYY-MM-DD
-
-## Status
-
-Vorgeschlagen | Akzeptiert | Verworfen | Ersetzt
-
-## Kontext
-
-Warum war die Entscheidung nötig?
-
-## Entscheidung
-
-Was wurde entschieden?
-
-## Konsequenzen
-
-Welche Auswirkungen hat das?
-
-## Alternativen
-
-Welche Optionen wurden betrachtet?
-
-## Verwandte Seiten
-
-- [[architektur/ueberblick]]
-```
-
-Kleinere Entscheidungen können zusätzlich in `docs/wiki/architektur/entscheidungen.md` zusammengefasst werden.
+Kleinere Entscheidungen können in `docs/wiki/architektur/entscheidungen.md` zusammengefasst werden.
 
 ---
 
@@ -592,19 +342,11 @@ Die interne Projektdokumentation befindet sich unter:
 - [Projekt-Wiki](docs/wiki/index.md)
 ```
 
-Falls das README sehr speziell oder automatisch generiert wirkt, erstelle stattdessen eine kurze Notiz in `docs/wiki/index.md` und ändere das README nicht.
-
 ---
 
 # Wiki-Pflege-Seite
 
-Erstelle oder aktualisiere zusätzlich:
-
-```text
-docs/wiki/wiki-pflege.md
-```
-
-Inhalt:
+Die Datei `docs/wiki/wiki-pflege.md` enthält:
 
 - Wie neue Informationen ergänzt werden
 - Wann bestehende Seiten aktualisiert werden sollen
@@ -614,6 +356,7 @@ Inhalt:
 - Dass produktiver Code nicht automatisch aus Wiki-Inhalten verändert werden darf
 - Dass Code die Quelle der Wahrheit ist
 - Dass das Wiki bei jeder Agent-Ausführung geprüft werden muss
+- Dass relative Markdown-Links verwendet werden (KEINE `[[Wiki-Syntax]]`)
 
 ---
 
@@ -645,6 +388,7 @@ Wenn keine Wiki-Änderung nötig war, muss der Grund genannt werden.
 - Vermeide doppelte Dokumentation.
 - Halte Links aktuell.
 - Nutze klare deutsche Sprache.
+- Verwende relative Markdown-Links (`[Text](./pfad/datei.md)`), keine `[[Wiki-Syntax]]`.
 
 ---
 
@@ -656,5 +400,3 @@ Code ist die Quelle der Wahrheit.
 Das Wiki erklärt die Quelle der Wahrheit.
 
 Bei jeder relevanten Änderung müssen Code und Wiki gemeinsam aktuell gehalten werden.
-
-Beginne jetzt mit der Analyse des Projekts und richte das Wiki entsprechend ein.

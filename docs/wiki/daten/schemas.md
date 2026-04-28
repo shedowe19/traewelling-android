@@ -6,9 +6,24 @@ Beschreibung der lokalen Entity Schemas.
 
 ## StatusEntity
 
-Tabellenname vermutlich `status` oder abgeleitet von `StatusEntity`.
-TODO: Genaue Spaltenstruktur dokumentieren, wenn `StatusEntity.kt` im Detail benötigt wird (z.B. in der Zukunft).
+```kotlin
+@Entity(tableName = "feed_statuses")
+data class StatusEntity(
+    @PrimaryKey val id: Int,
+    val statusJson: String,
+    val type: String // "dashboard" or "global"
+)
+```
+
+**Tabelle:** `feed_statuses`
+
+| Spalte | Typ | Beschreibung |
+|--------|-----|--------------|
+| `id` | Int (PK) | Status-ID von der API |
+| `statusJson` | String | Serialisiertes Status-Objekt (Gson) |
+| `type` | String | "dashboard" oder "global" für Feed-Typ |
 
 ## Verwandte Seiten
 
-- [[daten/datenbank]]
+- [Datenbank](./datenbank.md)
+- [Datenmodell](./datenmodell.md)

@@ -6,66 +6,81 @@ Code ist die Quelle der Wahrheit. Das Wiki erklärt die Quelle der Wahrheit.
 
 ## Projekt
 
-- [[projekt/ueberblick]]
-- [[projekt/ziele]]
-- [[projekt/begriffe]]
+- [Übersicht](./projekt/ueberblick.md)
+- [Ziele](./projekt/ziele.md)
+- [Begriffe](./projekt/begriffe.md)
 
 ## Architektur
 
-- [[architektur/ueberblick]]
-- [[architektur/datenfluss]]
-- [[architektur/module]]
-- [[architektur/entscheidungen]]
-- [[architektur/externe-abhaengigkeiten]]
+- [Überblick](./architektur/ueberblick.md)
+- [Datenfluss](./architektur/datenfluss.md)
+- [Module](./architektur/module.md)
+- [Entscheidungen](./architektur/entscheidungen.md)
+- [Externe Abhängigkeiten](./architektur/externe-abhaengigkeiten.md)
 
 ## Entwicklung
 
-- [[entwicklung/setup]]
-- [[entwicklung/lokale-entwicklung]]
-- [[entwicklung/tests]]
-- [[entwicklung/build]]
-- [[entwicklung/deployment]]
+- [Setup](./entwicklung/setup.md)
+- [Lokale Entwicklung](./entwicklung/lokale-entwicklung.md)
+- [Tests](./entwicklung/tests.md)
+- [Build](./entwicklung/build.md)
+- [Deployment](./entwicklung/deployment.md)
 
 ## Module
 
-- [[module/README]]
+- [Module Übersicht](./module/README.md)
 
 ## Features
 
-- [[features/README]]
+- [Features Übersicht](./features/README.md)
 
 ## API und Schnittstellen
 
-- [[api/ueberblick]]
-- [[api/interne-schnittstellen]]
-- [[api/externe-schnittstellen]]
+- [API Überblick](./api/ueberblick.md)
+- [Interne Schnittstellen](./api/interne-schnittstellen.md)
+- [Externe Schnittstellen](./api/externe-schnittstellen.md)
 
 ## Daten
 
-- [[daten/datenmodell]]
-- [[daten/datenbank]]
-- [[daten/schemas]]
-- [[daten/migrationen]]
+- [Datenmodell](./daten/datenmodell.md)
+- [Datenbank](./daten/datenbank.md)
+- [Schemas](./daten/schemas.md)
+- [Migrationen](./daten/migrationen.md)
 
 ## Konfiguration
 
-- [[konfiguration/umgebungsvariablen]]
-- [[konfiguration/config-dateien]]
-- [[konfiguration/secrets-und-sicherheit]]
+- [Umgebungsvariablen](./konfiguration/umgebungsvariablen.md)
+- [Config-Dateien](./konfiguration/config-dateien.md)
+- [Secrets und Sicherheit](./konfiguration/secrets-und-sicherheit.md)
+- [PreferencesManager](./konfiguration/preferences-manager.md)
 
 ## Entscheidungen
 
-- [[entscheidungen/README]]
-- [[entscheidungen/adr-template]]
+- [Entscheidungen](./entscheidungen/README.md)
+- [ADR Template](./entscheidungen/adr-template.md)
+
+## UI
+
+- [Screens](./ui/screens.md)
+- [Komponenten](./ui/komponenten.md)
+- [Theme](./ui/theme.md)
 
 ## Weitere Seiten
 
-- [[glossar]]
-- [[offene-fragen]]
-- [[wiki-pflege]]
+- [Glossar](./glossar.md)
+- [Offene Fragen](./offene-fragen.md)
+- [Wiki-Pflege](./wiki-pflege.md)
 
 ## Spezifische Module
 
-- [[module/auth]]
-- [[module/checkin]]
-- [[module/feed]]
+- [Auth](./module/auth.md)
+- [Auth-PKCE](./module/auth-pkce.md)
+- [Check-in](./module/checkin.md)
+- [Feed](./module/feed.md)
+- [Notifications](./module/notifications.md)
+- [Profile](./module/profile.md)
+- [StatusDetail](./module/status-detail.md)
+- [TripTracking](./module/trip-tracking.md)
+- [UserProfile](./module/user-profile.md)
+- [UserSearch](./module/user-search.md)
+- [Widget](./module/widget.md)

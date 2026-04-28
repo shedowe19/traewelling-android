@@ -47,5 +47,5 @@ Der typische Ablauf eines Check-ins nutzt mehrere API-Endpunkte nacheinander:
 
 ## Verwandte Seiten
 
-- [[api/ueberblick]]
-- [[api/externe-schnittstellen]]
+- [API Überblick](../api/ueberblick.md)
+- [Externe Schnittstellen](../api/externe-schnittstellen.md)

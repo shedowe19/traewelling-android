@@ -11,4 +11,4 @@ Zurzeit gibt es einen `StatusDao` für `StatusEntity`. Die Methode `fallbackToDe
 
 ## Verwandte Seiten
 
-- [[daten/migrationen]]
+- [Migrationen](./migrationen.md)

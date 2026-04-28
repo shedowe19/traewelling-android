@@ -30,5 +30,5 @@ Das Modul initiiert den OAuth2 Flow, wickelt den Code-Austausch über den `OAuth
 
 ## Verwandte Seiten
 
-- [[api/ueberblick]]
-- [[module/README]]
+- [API Überblick](../api/ueberblick.md)
+- [Module Übersicht](./README.md)

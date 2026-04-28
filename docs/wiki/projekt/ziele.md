@@ -16,4 +16,4 @@ Warum wurde diese Version optimiert?
 
 ## Verwandte Seiten
 
-- [[projekt/ueberblick]]
+- [Projekt Überblick](./ueberblick.md)

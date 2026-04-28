@@ -14,4 +14,4 @@ Aktuell werden in Gradle `versionCode` und `versionName` per Property bezogen (`
 
 ## Verwandte Seiten
 
-- [[konfiguration/secrets-und-sicherheit]]
+- [Secrets und Sicherheit](./secrets-und-sicherheit.md)

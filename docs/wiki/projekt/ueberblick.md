@@ -25,5 +25,5 @@ Dokumentiert, was das Projekt macht und für wen es gedacht ist.
 
 ## Verwandte Seiten
 
-- [[projekt/ziele]]
-- [[architektur/ueberblick]]
+- [Ziele](./ziele.md)
+- [Architektur Überblick](../architektur/ueberblick.md)

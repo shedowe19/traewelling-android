@@ -2,12 +2,13 @@
 
 ## Zweck
 
-Deployment und Release.
+Dokumentiert den Deployment-Prozess.
 
-## Status
+## TODO
 
-Unklar: Genaue Pipeline für den Google Play Store Release (Release-Signatur etc.) ist nicht im Basis-Projektcode dokumentiert. Standard Android Build Process greift (`./gradlew assembleRelease`).
+- TODO: Play Store Release Prozess dokumentieren
+- TODO: CI/CD Pipeline dokumentieren
 
 ## Verwandte Seiten
 
-- [[entwicklung/build]]
+- [Build](./build.md)

@@ -15,4 +15,4 @@ Dokumentation wichtiger 3rd-Party-Bibliotheken und Dienste.
 
 ## Verwandte Seiten
 
-- [[architektur/ueberblick]]
+- [Architektur Überblick](./ueberblick.md)

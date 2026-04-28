@@ -12,4 +12,4 @@ Wichtige Build- und Config-Dateien des Projekts.
 
 ## Verwandte Seiten
 
-- [[entwicklung/build]]
+- [Build](../entwicklung/build.md)

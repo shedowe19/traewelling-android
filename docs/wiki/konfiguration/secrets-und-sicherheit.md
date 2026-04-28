@@ -11,4 +11,4 @@ Sicherheitsrelevante Vorgaben für die Entwicklung.
 
 ## Verwandte Seiten
 
-- [[konfiguration/umgebungsvariablen]]
+- [Umgebungsvariablen](./umgebungsvariablen.md)

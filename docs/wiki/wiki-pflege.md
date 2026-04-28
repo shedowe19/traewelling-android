@@ -17,7 +17,8 @@ Dieses Wiki ist ein zentrales Dokumentations-Tool und wird von Entwicklern und K
 - **Wie Unterordner genutzt werden**: Seiten in passende Unterordner einsortieren, wie im `index.md` vorgegeben.
 - **Wahrheit**: Produktiver Code darf nicht automatisch aus Wiki-Inhalten verändert werden. Code ist die Quelle der Wahrheit.
 - **Prüfung**: Das Wiki muss bei jeder Agent-Ausführung geprüft werden.
+- **Verlinkung**: Alle Links als relative Markdown-Links (`[Text](./pfad/datei.md)`), keine Wiki-Syntax (`[[Link]]`), da GitHub keine Wiki-Links unterstützt.
 
 ## Verwandte Seiten
 
-- [[index]]
+- [Index](./index.md)

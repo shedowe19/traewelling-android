@@ -13,4 +13,4 @@
 
 ## Verwandte Seiten
 
-- [[module/README]]
+- [Module Übersicht](../module/README.md)

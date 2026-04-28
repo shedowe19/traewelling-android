@@ -42,10 +42,11 @@ Zentrale Schnittstelle, definiert in `TraewellingApiService.kt`. Die App kommuni
 - **Gelesen markieren**: `PUT /api/v1/notifications/read/{id}` oder `/all`.
 
 ## OAuth
+
 Token Exchange und Refreshing laufen über den `OAuthApiService` (`POST /oauth/token`).
 
 ## Verwandte Seiten
 
-- [[api/interne-schnittstellen]]
-- [[api/externe-schnittstellen]]
-- [[module/checkin]]
+- [Interne Schnittstellen](./interne-schnittstellen.md)
+- [Externe Schnittstellen](./externe-schnittstellen.md)
+- [Check-in](../module/checkin.md)

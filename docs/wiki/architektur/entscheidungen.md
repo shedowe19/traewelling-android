@@ -14,4 +14,4 @@ Kurze Zusammenfassung technischer Entscheidungen, für die es eventuell keine ei
 
 ## Verwandte Seiten
 
-- [[entscheidungen/README]]
+- [Entscheidungen](../entscheidungen/README.md)

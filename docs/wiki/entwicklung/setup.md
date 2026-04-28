@@ -15,4 +15,4 @@ Dokumentiert die Schritte zur lokalen Einrichtung des Projekts.
 
 ## Verwandte Seiten
 
-- [[entwicklung/lokale-entwicklung]]
+- [Lokale Entwicklung](./lokale-entwicklung.md)

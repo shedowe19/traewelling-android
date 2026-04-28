@@ -13,4 +13,4 @@ Einstiegspunkt für detaillierte Beschreibungen von App-Features.
 
 ## Verwandte Seiten
 
-- [[projekt/ueberblick]]
+- [Projekt Überblick](../projekt/ueberblick.md)

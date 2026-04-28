@@ -10,4 +10,4 @@ Zurzeit wird `fallbackToDestructiveMigration()` in `AppDatabase` verwendet. Kein
 
 ## Verwandte Seiten
 
-- [[daten/datenbank]]
+- [Datenbank](./datenbank.md)

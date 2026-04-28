@@ -11,4 +11,4 @@ Dokumentiert, wie die App getestet wird.
 
 ## Verwandte Seiten
 
-- [[entwicklung/setup]]
+- [Setup](./setup.md)

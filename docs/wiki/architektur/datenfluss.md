@@ -16,4 +16,4 @@ Erklärung, wie Daten durch die App fließen.
 
 ## Verwandte Seiten
 
-- [[architektur/ueberblick]]
+- [Architektur Überblick](./ueberblick.md)

@@ -19,5 +19,5 @@ Besonderheiten beim Umgang mit den von Träwelling gelieferten Transit-Daten:
 
 ## Verwandte Seiten
 
-- [[api/ueberblick]]
-- [[api/interne-schnittstellen]]
+- [API Überblick](./ueberblick.md)
+- [Interne Schnittstellen](./interne-schnittstellen.md)

@@ -2,12 +2,23 @@
 
 ## Zweck
 
-Erklärt Besonderheiten des Build-Prozesses.
+Dokumentiert den Build-Prozess.
 
-## Gradle Setup
+## Gradle Tasks
 
-Das Projekt nutzt `build.gradle.kts` (Kotlin DSL) mit Versions-Katalogen (`libs.versions.toml` oder internen Blöcken). Es erfordert `compileSdk = 34`, `minSdk = 26` und JVM Target 17.
+- `./gradlew assembleDebug` - Debug-Build erstellen
+- `./gradlew assembleRelease` - Release-Build erstellen
+- `./gradlew compileDebugKotlin` - Kotlin-Code kompilieren ohne vollen Build
+- `./gradlew build` - Vollständiger Build
+
+## Build-Konfiguration
+
+- **compileSdk**: 34
+- **minSdk**: 26
+- **targetSdk**: 34
+- **Java/Kotlin**: JDK 17, JVM Target 17
 
 ## Verwandte Seiten
 
-- [[konfiguration/config-dateien]]
+- [Setup](./setup.md)
+- [Config-Dateien](../konfiguration/config-dateien.md)

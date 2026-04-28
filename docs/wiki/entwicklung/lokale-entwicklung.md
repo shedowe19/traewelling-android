@@ -2,14 +2,21 @@
 
 ## Zweck
 
-Hinweise für den Entwicklungsalltag.
+Dokumentiert zusätzliche Schritte für die lokale Entwicklung.
 
-## Richtlinien
+## Workflow
 
-- Keine sensiblen Daten (Test-User, JWT Tokens, API Keys) in den Code committen.
-- Compose Guidelines beachten (kein komplexes Re-Composing, `remember` nutzen).
-- API-Daten immer validieren/deduplizieren, bevor sie in Compose-Listen (`LazyColumn`) mit `key` gerendert werden.
+1. Änderungen vornehmen
+2. Gradle Sync (falls nötig)
+3. App neu bauen und testen
+
+## Debugging
+
+- Logcat für Runtime-Logs
+- Layout Inspector für UI-Probleme
+- Network Profiler für API-Aufrufe
 
 ## Verwandte Seiten
 
-- [[entwicklung/setup]]
+- [Setup](./setup.md)
+- [Build](./build.md)

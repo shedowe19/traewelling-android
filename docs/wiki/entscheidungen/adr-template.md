@@ -26,4 +26,4 @@ Welche Optionen wurden betrachtet?
 
 ## Verwandte Seiten
 
-- [[architektur/ueberblick]]
+- [Architektur Überblick](../architektur/ueberblick.md)

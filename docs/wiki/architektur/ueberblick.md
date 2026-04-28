@@ -15,5 +15,5 @@ Die App folgt dem Model-View-ViewModel (MVVM) Muster:
 
 ## Verwandte Seiten
 
-- [[architektur/datenfluss]]
-- [[architektur/module]]
+- [Datenfluss](./datenfluss.md)
+- [Module](./module.md)

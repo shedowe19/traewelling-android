@@ -29,5 +29,5 @@ Lädt paginierte Listen von Status-Objekten vom Backend. Unterstützt lokale Cac
 
 ## Verwandte Seiten
 
-- [[daten/datenbank]]
-- [[module/README]]
+- [Datenbank](../daten/datenbank.md)
+- [Module Übersicht](./README.md)
