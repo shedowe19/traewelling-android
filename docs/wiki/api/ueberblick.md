@@ -2,7 +2,7 @@
 
 ## Zweck
 
-Übersicht über die Netzwerkschnittstellen. Diese Seite beschreibt grob die Routen, Endpunkte und Services für die Träwelling-App.
+Übersicht über die Netzwerkschnittstellen. Diese Seite beschreibt grob die Routen, Endpunkte und Services für die Routely-App.
 
 ## Wichtige Dateien
 
