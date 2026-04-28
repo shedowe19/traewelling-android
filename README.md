@@ -32,3 +32,9 @@ Der Haltestellenverlauf wurde komplett neu gestaltet, um maximale Orientierung z
 
 ---
 *Entwickelt für die Träwelling-Community.*
+
+## Projekt-Wiki
+
+Die interne Projektdokumentation (für Entwickler und Agenten) befindet sich unter:
+
+- [Projekt-Wiki](docs/wiki/index.md)
