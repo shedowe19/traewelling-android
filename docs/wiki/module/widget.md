@@ -33,7 +33,7 @@ Im Ordner `res/layout/` befindet sich `trip_widget.xml` mit folgenden Views:
 
 ## Offene Fragen
 
-- TODO: Layout und Darstellung des Widgets prüfen und dokumentieren
+Keine offenen Fragen aktuell.
 
 ## Verwandte Seiten
 

@@ -17,7 +17,13 @@ Die Authentifizierung ist der initiale Einstiegspunkt für den Nutzer, um person
 
 ## Verhalten
 
-Das Modul initiiert den OAuth2 Flow, wickelt den Code-Austausch über den `OAuthApiService` ab und speichert die Tokens lokal via `PreferencesManager`. Das `AuthViewModel` propagiert den aktuellen Authentifizierungsstatus (eingeloggt / nicht eingeloggt) an die UI.
+Die App unterstützt mehrere Authentifizierungswege:
+
+1. **OAuth Flow mit PKCE**: Über `OAuthHelper` werden kryptografisch sichere `code_verifier` und `code_challenge` generiert. Der resultierende Authorization Code wird in `AuthRepository.exchangeCodeForToken` zusammen mit dem `code_verifier` gegen Zugangs- und Refresh-Tokens eingetauscht.
+2. **Manueller Token-Login (`AuthViewModel.loginWithToken`)**: Bei Legacy-Routen oder direkter Eingabe kann ein API-Token manuell hinterlegt werden. Dieser Vorgang überspringt OAuth und PKCE komplett. Das Token wird direkt via `PreferencesManager` gespeichert und mit einem Aufruf an `api.getAuthUser()` validiert.
+3. **Refresh Token Flow**: Wird über `AuthRepository.refreshAccessToken()` gehandhabt (z.B. ausgelöst durch `viewModel.refresh()` in UI-Ansichten wie `UserProfileScreen`). Das gespeicherte Refresh-Token wird an `/oauth/token` gesendet, um ein neues Token-Paar zu erhalten. Schlägt dies fehl, wird die Session gelöscht (`prefs.clearSession()`).
+
+Das `AuthViewModel` propagiert den aktuellen Authentifizierungsstatus (eingeloggt / nicht eingeloggt) an die UI.
 
 ## Abhängigkeiten
 
@@ -26,7 +32,7 @@ Das Modul initiiert den OAuth2 Flow, wickelt den Code-Austausch über den `OAuth
 
 ## Offene Fragen
 
-- Unklar: Wird PKCE (`code_verifier`) bei jedem Login-Typ genutzt oder gibt es Legacy-Routen, die darauf verzichten?
+Keine offenen Fragen aktuell.
 
 ## Verwandte Seiten
 
