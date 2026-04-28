@@ -6,7 +6,7 @@ Code ist die Quelle der Wahrheit. Das Wiki erklärt die Quelle der Wahrheit.
 
 ## Projekt
 
-- [(projekt/ueberblick)]
+- [[projekt/ueberblick]]
 - [[projekt/ziele]]
 - [[projekt/begriffe]]
 
