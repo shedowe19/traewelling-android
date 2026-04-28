@@ -2,25 +2,50 @@
 
 ## Zweck
 
-Übersicht über die Netzwerkschnittstellen.
+Übersicht über die Netzwerkschnittstellen. Diese Seite beschreibt grob die Routen, Endpunkte und Services für die Träwelling-App.
+
+## Wichtige Dateien
+
+- `app/src/main/kotlin/de/traewelling/app/data/api/TraewellingApiService.kt`
+- `app/src/main/kotlin/de/traewelling/app/data/api/OAuthApiService.kt`
 
 ## TraewellingApiService
 
-Zentrale Schnittstelle, definiert in `TraewellingApiService.kt`. Die App kommuniziert mit den Träwelling RESTful APIs.
+Zentrale Schnittstelle, definiert in `TraewellingApiService.kt`. Die App kommuniziert hauptsächlich mit den Träwelling RESTful APIs.
 
-### Endpunkt-Gruppen:
-- **Auth**: `/api/v1/auth/user`, `/api/v1/auth/logout`.
-- **Feed**: `/api/v1/dashboard`, `/api/v1/statuses`.
-- **Station Search**: `/api/v1/trains/station/autocomplete`, `/api/v1/trains/station/nearby`, `/api/v1/stations`.
-- **Departures/Trips**: `/api/v1/station/{id}/departures`, `/api/v1/trains/trip`.
-- **Check-In**: `/api/v1/trains/checkin`.
-- **Profile/Follow**: `/api/v1/user/...`.
-- **Notifications**: `/api/v1/notifications/...`.
+### Wichtigste Endpunkt-Gruppen:
+
+**1. Check-in & Feed (Kernfunktionen)**
+- **Check-In**: `POST /api/v1/trains/checkin` – Einchecken in Verkehrsmittel (benötigt Start, Ziel, Fahrt-ID).
+- **Persönlicher Feed**: `GET /api/v1/dashboard` – Check-ins von Nutzern, denen man folgt.
+- **Globaler Feed**: `GET /api/v1/statuses` – Öffentliche Check-ins aller Nutzer.
+- **Status (Singular)**: `GET/PUT/DELETE /api/v1/status/{id}` sowie `POST/DELETE /api/v1/status/{id}/like` – Einzelnen Check-in abrufen, ändern, löschen, liken/entliken.
+
+**2. Bahnhöfe & Abfahrten (Reiseplanung)**
+- **Station Search**: `GET /api/v1/trains/station/autocomplete/{query}` – Suche von Haltestellen per Text.
+- **Nearby Stations**: `GET /api/v1/stations` (mit Bounding-Box über `min_lat`, `max_lat`, `min_lon`, `max_lon`) oder `GET /api/v1/trains/station/nearby` – Haltestellen in der Nähe. *Hinweis: `nearby` liefert immer nur einen Bahnhof, `stations` ist für Umkreissuche.*
+- **Departures**: `GET /api/v1/station/{id}/departures` – Abfahrtsmonitor. Benötigt die numerische ID, nicht den Namen!
+
+**3. Fahrtdetails & Haltestellen (Trip-Infos)**
+- **Trip Detail**: `GET /api/v1/trains/trip` – Liefert den gesamten Fahrtverlauf, benötigt `hafasTripId` und `lineName`.
+- **Stopovers**: `GET /api/v1/stopovers/{tripId}` – Detaillierte Route eines getätigten Check-ins.
+
+**4. Benutzer & Authentifizierung**
+- **Eigenes Profil**: `GET /api/v1/auth/user` – Eigene Daten abrufen.
+- **Fremdes Profil**: `GET /api/v1/user/{username}` – Profil eines anderen Nutzers.
+- **Nutzerhistorie**: `GET /api/v1/user/{username}/statuses` – Vergangene Check-ins eines Nutzers.
+- **Follow / Unfollow**: `POST/DELETE /api/v1/user/{id}/follow`.
+
+**5. Notifications**
+- **Benachrichtigungsliste**: `GET /api/v1/notifications`
+- **Ungelesene Zähler**: `GET /api/v1/notifications/unread/count`
+- **Gelesen markieren**: `PUT /api/v1/notifications/read/{id}` oder `/all`.
 
 ## OAuth
-Token Exchange und Refreshing laufen über den `OAuthApiService` (`/oauth/token`).
+Token Exchange und Refreshing laufen über den `OAuthApiService` (`POST /oauth/token`).
 
 ## Verwandte Seiten
 
 - [[api/interne-schnittstellen]]
 - [[api/externe-schnittstellen]]
+- [[module/checkin]]
