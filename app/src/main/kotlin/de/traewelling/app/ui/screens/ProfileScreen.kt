@@ -203,7 +203,9 @@ private fun ProfileHeader(user: User) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             StatChip("Distanz", "%.0f km".format((user.totalDistance ?: 0L) / 1000.0))
             StatChip("Zeit", formatDuration(user.totalDuration ?: 0))
-            StatChip("Punkte", (user.points ?: 0).toString())
+            if (user.pointsEnabled != false) {
+                StatChip("Punkte", (user.points ?: 0).toString())
+            }
         }
     }
 }

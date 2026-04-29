@@ -450,10 +450,12 @@ private fun SuccessStep(viewModel: CheckInViewModel, uiState: CheckInUiState) {
         Text("Erfolgreich eingecheckt!",
             style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         uiState.checkInResult?.points?.points?.let { pts ->
-            Spacer(Modifier.height(8.dp))
-            Text("+$pts Punkte erhalten!",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.secondary)
+            if (pts > 0) {
+                Spacer(Modifier.height(8.dp))
+                Text("+$pts Punkte erhalten!",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.secondary)
+            }
         }
         Spacer(Modifier.height(32.dp))
         Button(onClick = viewModel::reset, modifier = Modifier.fillMaxWidth()) {

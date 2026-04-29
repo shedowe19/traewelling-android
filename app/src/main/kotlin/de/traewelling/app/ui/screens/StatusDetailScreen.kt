@@ -549,7 +549,7 @@ private fun TripInfoCard(status: Status) {
                 if (checkin.duration != null) {
                     StatPill(Icons.Default.Schedule, "${checkin.duration} min", MaterialTheme.colorScheme.primary)
                 }
-                if (checkin.points != null) {
+                if (checkin.points != null && checkin.points > 0) {
                     StatPill(Icons.Default.Stars, "${checkin.points} Pkt", AmberAccent)
                 }
             }
