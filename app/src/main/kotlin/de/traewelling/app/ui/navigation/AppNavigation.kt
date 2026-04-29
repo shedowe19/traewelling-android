@@ -35,7 +35,8 @@ fun MainNavigation(
     notificationViewModel: NotificationViewModel,
     userProfileViewModel: UserProfileViewModel,
     statusDetailViewModel: StatusDetailViewModel,
-    userSearchViewModel: UserSearchViewModel
+    userSearchViewModel: UserSearchViewModel,
+    settingsViewModel: SettingsViewModel
 ) {
     val navController = rememberNavController()
 
@@ -102,7 +103,8 @@ fun MainNavigation(
                             ProfileScreen(
                                 profileViewModel,
                                 authViewModel,
-                                onStatusClick = { statusId -> navController.navigate("statusDetail/$statusId") }
+                                onStatusClick = { statusId -> navController.navigate("statusDetail/$statusId") },
+                                onSettingsClick = { navController.navigate("settings") }
                             )
                         }
                         else -> {}
@@ -141,6 +143,13 @@ fun MainNavigation(
                 viewModel   = statusDetailViewModel,
                 onBack      = { navController.popBackStack() },
                 onUserClick = { username -> navController.navigate("userProfile/$username") }
+            )
+        }
+
+        composable("settings") {
+            SettingsScreen(
+                viewModel = settingsViewModel,
+                onBack = { navController.popBackStack() }
             )
         }
     }

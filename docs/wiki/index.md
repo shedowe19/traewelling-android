@@ -84,3 +84,4 @@ Code ist die Quelle der Wahrheit. Das Wiki erklärt die Quelle der Wahrheit.
 - [UserProfile](./module/user-profile.md)
 - [UserSearch](./module/user-search.md)
 - [Widget](./module/widget.md)
+- [Settings](./module/settings.md)

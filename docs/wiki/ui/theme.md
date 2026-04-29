@@ -32,7 +32,9 @@ Dokumentation des Farbschemas und der Typografie.
 - WarningOrange: #E65100 (Verspätung)
 - ErrorRed: #C62828 (Ausfall/Fehler)
 
-## Material3 ColorScheme
+## Material3 ColorSchemes
+
+Das Theme unterstützt nun mehrere Modi (Light, Dark, AMOLED), die reaktiv basierend auf der Nutzereinstellung über den `PreferencesManager` und `SettingsViewModel` geladen werden.
 
 ```kotlin
 private val LightColorScheme = lightColorScheme(
@@ -42,6 +44,18 @@ private val LightColorScheme = lightColorScheme(
     error = ErrorRed,
     background = SurfaceBlue (#FAFBFF),
     surface = SurfaceCard (#FFFFFF)
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = DeepIndigo,
+    background = Color(0xFF121212),
+    surface = Color(0xFF1E1E1E)
+)
+
+private val AmoledColorScheme = darkColorScheme(
+    primary = DeepIndigo,
+    background = Color(0xFF000000), // Tiefes Schwarz für OLED
+    surface = Color(0xFF000000)
 )
 ```
 

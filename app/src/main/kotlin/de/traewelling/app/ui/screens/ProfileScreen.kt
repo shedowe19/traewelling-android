@@ -32,7 +32,8 @@ import de.traewelling.app.viewmodel.ProfileViewModel
 fun ProfileScreen(
     profileViewModel: ProfileViewModel,
     authViewModel: AuthViewModel,
-    onStatusClick: (Int) -> Unit = {}
+    onStatusClick: (Int) -> Unit = {},
+    onSettingsClick: () -> Unit = {}
 ) {
     val uiState by profileViewModel.uiState.collectAsState()
 
@@ -105,82 +106,16 @@ fun ProfileScreen(
                 item {
                     Spacer(Modifier.height(16.dp))
 
-                    // TTS Settings Toggle
-                    Card(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                        elevation = CardDefaults.cardElevation(2.dp),
-                        colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)
+                    OutlinedButton(
+                        onClick = onSettingsClick,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Haltestellen ansagen",
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    "Nächste Haltestelle kurz vor Ankunft vorlesen",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                )
-                            }
-                            Switch(
-                                checked = uiState.isTtsEnabled,
-                                onCheckedChange = { profileViewModel.toggleTts(it) }
-                            )
-                        }
-
-                        if (uiState.isTtsEnabled) {
-                            HorizontalDivider()
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Text-to-Speech Engine", style = MaterialTheme.typography.labelMedium)
-                                Spacer(Modifier.height(4.dp))
-                                TtsDropdownMenu(
-                                    items = uiState.availableTtsEngines.map { it.name to it.label },
-                                    selectedItem = uiState.selectedTtsEngine,
-                                    onItemSelected = { profileViewModel.selectTtsEngine(it) },
-                                    defaultLabel = "System-Standard"
-                                )
-
-                                Spacer(Modifier.height(12.dp))
-                                Text("Sprache", style = MaterialTheme.typography.labelMedium)
-                                Spacer(Modifier.height(4.dp))
-                                TtsDropdownMenu(
-                                    items = uiState.availableLanguages.map { it.toLanguageTag() to it.displayName },
-                                    selectedItem = uiState.selectedTtsLanguage,
-                                    onItemSelected = { profileViewModel.selectTtsLanguage(it) },
-                                    defaultLabel = "System-Standard"
-                                )
-
-                                Spacer(Modifier.height(12.dp))
-                                Text("Stimme", style = MaterialTheme.typography.labelMedium)
-                                Spacer(Modifier.height(4.dp))
-                                TtsDropdownMenu(
-                                    items = uiState.availableVoices.map { it.name to it.name },
-                                    selectedItem = uiState.selectedTtsVoice,
-                                    onItemSelected = { profileViewModel.selectTtsVoice(it) },
-                                    defaultLabel = "System-Standard"
-                                )
-
-                                Spacer(Modifier.height(16.dp))
-                                Button(
-                                    onClick = { profileViewModel.testTts() },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Icon(Icons.Default.PlayArrow, contentDescription = "Test TTS")
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("Stimme testen")
-                                }
-                            }
-                        }
+                        Icon(Icons.Default.Settings, contentDescription = "Einstellungen")
+                        Spacer(Modifier.width(8.dp))
+                        Text("Einstellungen")
                     }
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(8.dp))
                     OutlinedButton(
                         onClick = { authViewModel.logout() },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -384,49 +319,3 @@ private fun formatDuration(minutes: Int): String {
     return if (hours > 0) "${hours}h ${mins}m" else "${mins}m"
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TtsDropdownMenu(
-    items: List<Pair<String, String>>,
-    selectedItem: String?,
-    onItemSelected: (String) -> Unit,
-    defaultLabel: String
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val selectedLabel = items.find { it.first == selectedItem }?.second ?: defaultLabel
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it }
-    ) {
-        OutlinedTextField(
-            value = selectedLabel,
-            onValueChange = {},
-            readOnly = true,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth(),
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text(defaultLabel) },
-                onClick = {
-                    onItemSelected("")
-                    expanded = false
-                }
-            )
-            items.forEach { (id, label) ->
-                DropdownMenuItem(
-                    text = { Text(label) },
-                    onClick = {
-                        onItemSelected(id)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
