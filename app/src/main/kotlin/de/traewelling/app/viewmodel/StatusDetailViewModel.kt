@@ -12,8 +12,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import android.util.Log
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
 data class StatusDetailUiState(
@@ -78,14 +80,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                     if (tripId != null) {
                         repo.getStopovers(tripId)
                             .onSuccess { stops ->
-                                val mappedStops: List<de.traewelling.app.data.model.StopStation> = stops.map { stop ->
-                                    when (stop.id) {
-                                        origin?.id -> if (origin?.id != null) origin else stop
-                                        destination?.id -> if (destination?.id != null) destination else stop
-                                        else -> stop
-                                    }
-                                }
-                                val enrichedStops = propagateDelays(mappedStops)
+                                val enrichedStops = enrichStops(stops, origin, destination)
                                 
                                 _uiState.update {
                                     it.copy(
@@ -149,14 +144,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
             val tripId = enrichedStatus.checkin?.trip
             if (tripId != null) {
                 repo.getStopovers(tripId).onSuccess { stops ->
-                    val mappedStops: List<de.traewelling.app.data.model.StopStation> = stops.map { stop ->
-                        when (stop.id) {
-                            origin?.id -> if (origin?.id != null) origin else stop
-                            destination?.id -> if (destination?.id != null) destination else stop
-                            else -> stop
-                        }
-                    }
-                    val enrichedStops = propagateDelays(mappedStops)
+                    val enrichedStops = enrichStops(stops, origin, destination)
                     _uiState.update {
                         it.copy(
                             status = enrichedStatus,
@@ -169,6 +157,17 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    private fun enrichStops(stops: List<StopStation>, origin: StopStation?, destination: StopStation?): List<StopStation> {
+        val mappedStops = stops.map { stop ->
+            when (stop.id) {
+                origin?.id -> if (origin?.id != null) origin else stop
+                destination?.id -> if (destination?.id != null) destination else stop
+                else -> stop
+            }
+        }
+        return propagateDelays(mappedStops)
+    }
+
     private fun propagateDelays(stops: List<StopStation>): List<StopStation> {
         var currentDelayMinutes: Long = 0
         val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -179,8 +178,14 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
 
             // Process Arrival
             if (stop.arrivalPlanned != null) {
-                val plannedArrivalZdt = try { ZonedDateTime.parse(stop.arrivalPlanned) } catch (e: Exception) { null }
-                val realArrivalZdt = try { stop.arrivalReal?.let { ZonedDateTime.parse(it) } } catch (e: Exception) { null }
+                val plannedArrivalZdt = try { ZonedDateTime.parse(stop.arrivalPlanned) } catch (e: DateTimeParseException) {
+                    Log.w("StatusDetailViewModel", "Malformed arrivalPlanned time for stop ${stop.id}: ${stop.arrivalPlanned}", e)
+                    null
+                }
+                val realArrivalZdt = try { stop.arrivalReal?.let { ZonedDateTime.parse(it) } } catch (e: DateTimeParseException) {
+                    Log.w("StatusDetailViewModel", "Malformed arrivalReal time for stop ${stop.id}: ${stop.arrivalReal}", e)
+                    null
+                }
 
                 if (plannedArrivalZdt != null) {
                     if (realArrivalZdt != null && !realArrivalZdt.isEqual(plannedArrivalZdt)) {
@@ -200,8 +205,14 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
 
             // Process Departure
             if (stop.departurePlanned != null) {
-                val plannedDepartureZdt = try { ZonedDateTime.parse(stop.departurePlanned) } catch (e: Exception) { null }
-                val realDepartureZdt = try { stop.departureReal?.let { ZonedDateTime.parse(it) } } catch (e: Exception) { null }
+                val plannedDepartureZdt = try { ZonedDateTime.parse(stop.departurePlanned) } catch (e: DateTimeParseException) {
+                    Log.w("StatusDetailViewModel", "Malformed departurePlanned time for stop ${stop.id}: ${stop.departurePlanned}", e)
+                    null
+                }
+                val realDepartureZdt = try { stop.departureReal?.let { ZonedDateTime.parse(it) } } catch (e: DateTimeParseException) {
+                    Log.w("StatusDetailViewModel", "Malformed departureReal time for stop ${stop.id}: ${stop.departureReal}", e)
+                    null
+                }
 
                 if (plannedDepartureZdt != null) {
                     if (realDepartureZdt != null && !realDepartureZdt.isEqual(plannedDepartureZdt)) {
