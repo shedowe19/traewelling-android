@@ -12,6 +12,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 data class StatusDetailUiState(
     val isLoading: Boolean = false,
@@ -75,13 +78,14 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                     if (tripId != null) {
                         repo.getStopovers(tripId)
                             .onSuccess { stops ->
-                                val enrichedStops: List<de.traewelling.app.data.model.StopStation> = stops.map { stop ->
+                                val mappedStops: List<de.traewelling.app.data.model.StopStation> = stops.map { stop ->
                                     when (stop.id) {
                                         origin?.id -> if (origin?.id != null) origin else stop
                                         destination?.id -> if (destination?.id != null) destination else stop
                                         else -> stop
                                     }
                                 }
+                                val enrichedStops = propagateDelays(mappedStops)
                                 
                                 _uiState.update {
                                     it.copy(
@@ -145,13 +149,14 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
             val tripId = enrichedStatus.checkin?.trip
             if (tripId != null) {
                 repo.getStopovers(tripId).onSuccess { stops ->
-                    val enrichedStops: List<de.traewelling.app.data.model.StopStation> = stops.map { stop ->
+                    val mappedStops: List<de.traewelling.app.data.model.StopStation> = stops.map { stop ->
                         when (stop.id) {
                             origin?.id -> if (origin?.id != null) origin else stop
                             destination?.id -> if (destination?.id != null) destination else stop
                             else -> stop
                         }
                     }
+                    val enrichedStops = propagateDelays(mappedStops)
                     _uiState.update {
                         it.copy(
                             status = enrichedStatus,
@@ -161,6 +166,60 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                     }
                 }
             }
+        }
+    }
+
+    private fun propagateDelays(stops: List<StopStation>): List<StopStation> {
+        var currentDelayMinutes: Long = 0
+        val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+
+        return stops.map { stop ->
+            var updatedStop = stop
+            var delayUpdated = false
+
+            // Process Arrival
+            if (stop.arrivalPlanned != null) {
+                val plannedArrivalZdt = try { ZonedDateTime.parse(stop.arrivalPlanned) } catch (e: Exception) { null }
+                val realArrivalZdt = try { stop.arrivalReal?.let { ZonedDateTime.parse(it) } } catch (e: Exception) { null }
+
+                if (plannedArrivalZdt != null) {
+                    if (realArrivalZdt != null && !realArrivalZdt.isEqual(plannedArrivalZdt)) {
+                        // We have a known real delay for this stop
+                        currentDelayMinutes = ChronoUnit.MINUTES.between(plannedArrivalZdt, realArrivalZdt)
+                    } else if (currentDelayMinutes != 0L && (stop.arrivalReal == null || stop.arrivalReal == stop.arrivalPlanned)) {
+                        // Apply propagated delay
+                        val newRealArrival = plannedArrivalZdt.plusMinutes(currentDelayMinutes)
+                        updatedStop = updatedStop.copy(
+                            arrivalReal = newRealArrival.format(formatter),
+                            isArrivalDelayed = currentDelayMinutes > 0
+                        )
+                        delayUpdated = true
+                    }
+                }
+            }
+
+            // Process Departure
+            if (stop.departurePlanned != null) {
+                val plannedDepartureZdt = try { ZonedDateTime.parse(stop.departurePlanned) } catch (e: Exception) { null }
+                val realDepartureZdt = try { stop.departureReal?.let { ZonedDateTime.parse(it) } } catch (e: Exception) { null }
+
+                if (plannedDepartureZdt != null) {
+                    if (realDepartureZdt != null && !realDepartureZdt.isEqual(plannedDepartureZdt)) {
+                        // We have a known real delay for this stop
+                        currentDelayMinutes = ChronoUnit.MINUTES.between(plannedDepartureZdt, realDepartureZdt)
+                    } else if (currentDelayMinutes != 0L && (stop.departureReal == null || stop.departureReal == stop.departurePlanned)) {
+                        // Apply propagated delay
+                        val newRealDeparture = plannedDepartureZdt.plusMinutes(currentDelayMinutes)
+                        updatedStop = updatedStop.copy(
+                            departureReal = newRealDeparture.format(formatter),
+                            isDepartureDelayed = currentDelayMinutes > 0
+                        )
+                        delayUpdated = true
+                    }
+                }
+            }
+
+            if (delayUpdated) updatedStop else stop
         }
     }
 
