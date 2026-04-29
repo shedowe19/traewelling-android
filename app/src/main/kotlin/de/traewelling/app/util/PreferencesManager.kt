@@ -123,8 +123,10 @@ class PreferencesManager(private val context: Context) {
     }
 
     suspend fun setAppTheme(theme: String) {
+        val validThemes = listOf("LIGHT", "DARK", "AMOLED")
+        val safeTheme = if (theme in validThemes) theme else "LIGHT"
         context.dataStore.edit { prefs ->
-            prefs[KEY_APP_THEME] = theme
+            prefs[KEY_APP_THEME] = safeTheme
         }
     }
 

@@ -58,7 +58,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun initTts(engine: String? = null) {
-        val currentEngine = engine ?: _uiState.value.selectedTtsEngine
+        val normalizedEngine = if (engine.isNullOrEmpty()) null else engine
+        val normalizedSelectedEngine = if (_uiState.value.selectedTtsEngine.isNullOrEmpty()) null else _uiState.value.selectedTtsEngine
+        val currentEngine = normalizedEngine ?: normalizedSelectedEngine
         tts?.shutdown()
         tts = if (currentEngine != null) {
             TextToSpeech(getApplication(), this, currentEngine)
@@ -74,12 +76,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 val languages = Locale.getAvailableLocales().filter {
                     try {
                         ttsInstance.isLanguageAvailable(it) >= TextToSpeech.LANG_AVAILABLE
-                    } catch (e: Exception) { false }
+                    } catch (e: Exception) { android.util.Log.w("SettingsViewModel", "isLanguageAvailable check failed", e); false }
                 }.sortedBy { it.displayName }
 
                 val voices = try {
                     ttsInstance.voices?.toList() ?: emptyList()
-                } catch (e: Exception) { emptyList() }
+                } catch (e: Exception) { android.util.Log.w("SettingsViewModel", "Failed to fetch voices", e); emptyList() }
 
                 _uiState.update { state ->
                     val filteredVoices = if (!state.selectedTtsLanguage.isNullOrEmpty()) {
@@ -109,9 +111,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun selectTtsEngine(engine: String) {
+        val normalizedEngine = if (engine.isEmpty()) null else engine
         viewModelScope.launch {
-            prefs.saveTtsSettings(engine, _uiState.value.selectedTtsLanguage, _uiState.value.selectedTtsVoice)
-            initTts(engine) // Re-init with new engine to load its voices/langs
+            prefs.saveTtsSettings(normalizedEngine, _uiState.value.selectedTtsLanguage, _uiState.value.selectedTtsVoice)
+            initTts(normalizedEngine) // Re-init with new engine to load its voices/langs
         }
     }
 
@@ -125,7 +128,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             tts?.let { ttsInstance ->
                 val voices = try {
                     ttsInstance.voices?.toList() ?: emptyList()
-                } catch (e: Exception) { emptyList() }
+                } catch (e: Exception) { android.util.Log.w("SettingsViewModel", "Failed to fetch voices", e); emptyList() }
 
                 _uiState.update { state ->
                     val filteredVoices = if (language.isNotEmpty()) {
@@ -154,7 +157,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         if (selectedVoice != null) {
                             tts?.voice = selectedVoice
                         }
-                    } catch (e: Exception) {}
+                    } catch (e: Exception) { android.util.Log.w("SettingsViewModel", "Failed to set voice", e) }
                 }
                 tts?.speak("Dies ist ein Test der Sprachausgabe.", TextToSpeech.QUEUE_FLUSH, null, "TTS_TEST")
             }

@@ -1,4 +1,10 @@
-# ADR: Einführung von Dark Mode und Einstellungsmenü
+import os
+
+filepath = "docs/wiki/entscheidungen/2026-04-29-dark-mode-und-settings.md"
+with open(filepath, "r") as f:
+    content = f.read()
+
+new_content = """# ADR: Einführung von Dark Mode und Einstellungsmenü
 
 **Datum:** 2026-04-29
 
@@ -60,3 +66,8 @@ Die App startet standardmäßig im Light Mode. Wenn der Nutzer über die Einstel
 
 - [Theme Konfiguration](../ui/theme.md)
 - [PreferencesManager](../konfiguration/preferences-manager.md)
+"""
+
+with open(filepath, "w") as f:
+    f.write(new_content)
+print(f"Updated {filepath}")
