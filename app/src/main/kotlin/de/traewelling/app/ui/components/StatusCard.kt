@@ -145,7 +145,7 @@ fun StatusCard(
                             
                             Spacer(Modifier.weight(1f))
                             
-                            if (checkin.points != null) {
+                            if (checkin.points != null && checkin.points > 0) {
                                 StatPill(Icons.Default.Stars, "${checkin.points} Pkt", lineColors)
                             }
                         }
