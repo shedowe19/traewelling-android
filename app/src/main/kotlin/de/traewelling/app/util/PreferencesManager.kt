@@ -26,6 +26,7 @@ class PreferencesManager(private val context: Context) {
         val KEY_TTS_ENGINE    = stringPreferencesKey("tts_engine")
         val KEY_TTS_LANGUAGE  = stringPreferencesKey("tts_language")
         val KEY_TTS_VOICE     = stringPreferencesKey("tts_voice")
+        val KEY_APP_THEME     = stringPreferencesKey("app_theme")
 
         const val DEFAULT_SERVER_URL = "https://traewelling.de"
         const val REDIRECT_URI = "traewelling://oauth-callback"
@@ -71,6 +72,8 @@ class PreferencesManager(private val context: Context) {
     val ttsEngine: Flow<String?> = context.dataStore.data.map { prefs -> prefs[KEY_TTS_ENGINE] }
     val ttsLanguage: Flow<String?> = context.dataStore.data.map { prefs -> prefs[KEY_TTS_LANGUAGE] }
     val ttsVoice: Flow<String?> = context.dataStore.data.map { prefs -> prefs[KEY_TTS_VOICE] }
+
+    val appTheme: Flow<String> = context.dataStore.data.map { prefs -> prefs[KEY_APP_THEME] ?: "LIGHT" }
 
     suspend fun saveServerConfig(serverUrl: String, clientId: String, clientSecret: String) {
         context.dataStore.edit { prefs ->
@@ -119,6 +122,14 @@ class PreferencesManager(private val context: Context) {
         }
     }
 
+    suspend fun setAppTheme(theme: String) {
+        val validThemes = listOf("LIGHT", "DARK", "AMOLED")
+        val safeTheme = if (theme in validThemes) theme else "LIGHT"
+        context.dataStore.edit { prefs ->
+            prefs[KEY_APP_THEME] = safeTheme
+        }
+    }
+
     suspend fun clearSession() {
         context.dataStore.edit { prefs ->
             prefs.remove(KEY_ACCESS_TOKEN)
@@ -156,4 +167,6 @@ class PreferencesManager(private val context: Context) {
     suspend fun getTtsEngine(): String? = context.dataStore.data.map { it[KEY_TTS_ENGINE] }.first()
     suspend fun getTtsLanguage(): String? = context.dataStore.data.map { it[KEY_TTS_LANGUAGE] }.first()
     suspend fun getTtsVoice(): String? = context.dataStore.data.map { it[KEY_TTS_VOICE] }.first()
+
+    suspend fun getAppTheme(): String = context.dataStore.data.map { it[KEY_APP_THEME] ?: "LIGHT" }.first()
 }

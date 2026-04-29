@@ -101,10 +101,70 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant   = Color(0xFF49454F)
 )
 
+// ─── Dark Color Scheme ───────────────────────────────────────────────────────
+
+private val DarkColorScheme = darkColorScheme(
+    primary            = IndigoLight,
+    onPrimary          = Color.White,
+    primaryContainer   = DeepIndigo,
+    onPrimaryContainer = Color.White,
+    secondary          = TealAccent,
+    onSecondary        = Color.White,
+    secondaryContainer = TealDark,
+    onSecondaryContainer = TealLight,
+    tertiary           = AmberAccent,
+    onTertiary         = Color.White,
+    tertiaryContainer  = AmberDark,
+    onTertiaryContainer = AmberLight,
+    error              = Color(0xFFEF9A9A),
+    onError            = Color.Black,
+    errorContainer     = Color(0xFFC62828),
+    onErrorContainer   = Color.White,
+    background         = Color(0xFF121212),
+    onBackground       = Color(0xFFE0E0E0),
+    surface            = Color(0xFF1E1E1E),
+    onSurface          = Color(0xFFE0E0E0),
+    surfaceVariant     = Color(0xFF333333),
+    onSurfaceVariant   = Color(0xFFBDBDBD)
+)
+
+// ─── AMOLED Color Scheme ─────────────────────────────────────────────────────
+
+private val AmoledColorScheme = darkColorScheme(
+    primary            = IndigoLight,
+    onPrimary          = Color.White,
+    primaryContainer   = DeepIndigo,
+    onPrimaryContainer = Color.White,
+    secondary          = TealAccent,
+    onSecondary        = Color.White,
+    secondaryContainer = TealDark,
+    onSecondaryContainer = TealLight,
+    tertiary           = AmberAccent,
+    onTertiary         = Color.White,
+    tertiaryContainer  = AmberDark,
+    onTertiaryContainer = AmberLight,
+    error              = Color(0xFFEF9A9A),
+    onError            = Color.Black,
+    errorContainer     = Color(0xFFC62828),
+    onErrorContainer   = Color.White,
+    background         = Color(0xFF000000),
+    onBackground       = Color(0xFFE0E0E0),
+    surface            = Color(0xFF000000),
+    onSurface          = Color(0xFFE0E0E0),
+    surfaceVariant     = Color(0xFF121212),
+    onSurfaceVariant   = Color(0xFFBDBDBD)
+)
+
 @Composable
-fun TraewellingTheme(content: @Composable () -> Unit) {
+fun TraewellingTheme(theme: String = "LIGHT", content: @Composable () -> Unit) {
+    val colorScheme = when (theme) {
+        "DARK" -> DarkColorScheme
+        "AMOLED" -> AmoledColorScheme
+        else -> LightColorScheme
+    }
+
     MaterialTheme(
-        colorScheme = LightColorScheme,
+        colorScheme = colorScheme,
         typography  = Typography(),
         content     = content
     )

@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
     private val userProfileViewModel:  UserProfileViewModel  by viewModels()
     private val statusDetailViewModel: StatusDetailViewModel by viewModels()
     private val userSearchViewModel:   UserSearchViewModel   by viewModels()
+    private val settingsViewModel:     SettingsViewModel     by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +46,9 @@ class MainActivity : ComponentActivity() {
         checkAndResumeTripTracking()
 
         setContent {
-            TraewellingTheme {
+            val settingsState by settingsViewModel.uiState.collectAsState()
+
+            TraewellingTheme(theme = settingsState.appTheme) {
                 val snackbarHostState = remember { SnackbarHostState() }
                 val scope             = rememberCoroutineScope()
                 val authState         by authViewModel.uiState.collectAsState()
@@ -78,7 +81,8 @@ class MainActivity : ComponentActivity() {
                             notificationViewModel = notificationViewModel,
                             userProfileViewModel  = userProfileViewModel,
                             statusDetailViewModel = statusDetailViewModel,
-                            userSearchViewModel   = userSearchViewModel
+                            userSearchViewModel   = userSearchViewModel,
+                            settingsViewModel     = settingsViewModel
                         )
                         } else {
                             Box(modifier = Modifier.padding(innerPadding)) {

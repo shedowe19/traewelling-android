@@ -23,6 +23,7 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object CheckIn       : Screen("checkin",       "Check-in",          Icons.Default.Train)
     object Notifications : Screen("notifications", "Meldungen",         Icons.Default.Notifications)
     object Profile       : Screen("profile",       "Profil",            Icons.Default.Person)
+    object Settings      : Screen("settings",      "Einstellungen",     Icons.Default.Settings)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -35,7 +36,8 @@ fun MainNavigation(
     notificationViewModel: NotificationViewModel,
     userProfileViewModel: UserProfileViewModel,
     statusDetailViewModel: StatusDetailViewModel,
-    userSearchViewModel: UserSearchViewModel
+    userSearchViewModel: UserSearchViewModel,
+    settingsViewModel: SettingsViewModel
 ) {
     val navController = rememberNavController()
 
@@ -102,7 +104,8 @@ fun MainNavigation(
                             ProfileScreen(
                                 profileViewModel,
                                 authViewModel,
-                                onStatusClick = { statusId -> navController.navigate("statusDetail/$statusId") }
+                                onStatusClick = { statusId -> navController.navigate("statusDetail/$statusId") },
+                                onSettingsClick = { navController.navigate(Screen.Settings.route) }
                             )
                         }
                         else -> {}
@@ -141,6 +144,13 @@ fun MainNavigation(
                 viewModel   = statusDetailViewModel,
                 onBack      = { navController.popBackStack() },
                 onUserClick = { username -> navController.navigate("userProfile/$username") }
+            )
+        }
+
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                viewModel = settingsViewModel,
+                onBack = { navController.popBackStack() }
             )
         }
     }

@@ -32,7 +32,8 @@ import de.traewelling.app.viewmodel.ProfileViewModel
 fun ProfileScreen(
     profileViewModel: ProfileViewModel,
     authViewModel: AuthViewModel,
-    onStatusClick: (Int) -> Unit = {}
+    onStatusClick: (Int) -> Unit = {},
+    onSettingsClick: () -> Unit = {}
 ) {
     val uiState by profileViewModel.uiState.collectAsState()
 
@@ -105,82 +106,16 @@ fun ProfileScreen(
                 item {
                     Spacer(Modifier.height(16.dp))
 
-                    // TTS Settings Toggle
-                    Card(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                        elevation = CardDefaults.cardElevation(2.dp),
-                        colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)
+                    OutlinedButton(
+                        onClick = onSettingsClick,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Haltestellen ansagen",
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    "Nächste Haltestelle kurz vor Ankunft vorlesen",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                )
-                            }
-                            Switch(
-                                checked = uiState.isTtsEnabled,
-                                onCheckedChange = { profileViewModel.toggleTts(it) }
-                            )
-                        }
-
-                        if (uiState.isTtsEnabled) {
-                            HorizontalDivider()
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Text-to-Speech Engine", style = MaterialTheme.typography.labelMedium)
-                                Spacer(Modifier.height(4.dp))
-                                TtsDropdownMenu(
-                                    items = uiState.availableTtsEngines.map { it.name to it.label },
-                                    selectedItem = uiState.selectedTtsEngine,
-                                    onItemSelected = { profileViewModel.selectTtsEngine(it) },
-                                    defaultLabel = "System-Standard"
-                                )
-
-                                Spacer(Modifier.height(12.dp))
-                                Text("Sprache", style = MaterialTheme.typography.labelMedium)
-                                Spacer(Modifier.height(4.dp))
-                                TtsDropdownMenu(
-                                    items = uiState.availableLanguages.map { it.toLanguageTag() to it.displayName },
-                                    selectedItem = uiState.selectedTtsLanguage,
-                                    onItemSelected = { profileViewModel.selectTtsLanguage(it) },
-                                    defaultLabel = "System-Standard"
-                                )
-
-                                Spacer(Modifier.height(12.dp))
-                                Text("Stimme", style = MaterialTheme.typography.labelMedium)
-                                Spacer(Modifier.height(4.dp))
-                                TtsDropdownMenu(
-                                    items = uiState.availableVoices.map { it.name to it.name },
-                                    selectedItem = uiState.selectedTtsVoice,
-                                    onItemSelected = { profileViewModel.selectTtsVoice(it) },
-                                    defaultLabel = "System-Standard"
-                                )
-
-                                Spacer(Modifier.height(16.dp))
-                                Button(
-                                    onClick = { profileViewModel.testTts() },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Icon(Icons.Default.PlayArrow, contentDescription = "Test TTS")
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("Stimme testen")
-                                }
-                            }
-                        }
+                        Icon(Icons.Default.Settings, contentDescription = "Einstellungen")
+                        Spacer(Modifier.width(8.dp))
+                        Text("Einstellungen")
                     }
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(8.dp))
                     OutlinedButton(
                         onClick = { authViewModel.logout() },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -226,18 +161,18 @@ private fun ProfileHeader(user: User) {
                 modifier = Modifier
                     .size(96.dp)
                     .clip(CircleShape)
-                    .border(3.dp, DeepIndigo.copy(alpha = 0.2f), CircleShape)
+                    .border(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), CircleShape)
             )
         } else {
             Box(
                 modifier = Modifier
                     .size(96.dp)
-                    .background(DeepIndigo.copy(alpha = 0.08f), CircleShape),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(Icons.Default.Person, null,
                     modifier = Modifier.size(48.dp),
-                    tint = DeepIndigo.copy(alpha = 0.5f))
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -246,14 +181,14 @@ private fun ProfileHeader(user: User) {
             fontWeight = FontWeight.Bold, fontSize = 24.sp
         )
         Surface(
-            color = DeepIndigo.copy(alpha = 0.08f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
             shape = androidx.compose.foundation.shape.RoundedCornerShape(6.dp),
             modifier = Modifier.padding(top = 4.dp)
         ) {
             Text(
                 "@${user.username}",
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                color = DeepIndigo.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
@@ -276,7 +211,7 @@ private fun ProfileHeader(user: User) {
 @Composable
 private fun StatChip(label: String, value: String) {
     Surface(
-        color = DeepIndigo.copy(alpha = 0.05f),
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -284,9 +219,9 @@ private fun StatChip(label: String, value: String) {
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Text(value, fontWeight = FontWeight.Bold, fontSize = 18.sp,
-                color = DeepIndigo)
+                color = MaterialTheme.colorScheme.primary)
             Text(label, style = MaterialTheme.typography.labelSmall,
-                color = DeepIndigo.copy(alpha = 0.6f))
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
         }
     }
 }
@@ -303,7 +238,7 @@ private fun StatisticsSection(user: User?, stats: StatisticsData) {
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(3.dp),
-        colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(Modifier.padding(16.dp)) {
             Text("Fahrten (letzte 28 Tage)",
@@ -317,11 +252,11 @@ private fun StatisticsSection(user: User?, stats: StatisticsData) {
             }
             if (categories.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
-                HorizontalDivider(color = DeepIndigo.copy(alpha = 0.1f))
+                HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                 Spacer(Modifier.height(12.dp))
                 Text("Verkehrsmittel", style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = DeepIndigo.copy(alpha = 0.6f))
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
                 Spacer(Modifier.height(8.dp))
                 categories.take(4).forEach { cat ->
                     Row(
@@ -353,10 +288,10 @@ private fun StatItem(
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
-            color = DeepIndigo.copy(alpha = 0.1f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
             shape = CircleShape
         ) {
-            Icon(icon, null, tint = DeepIndigo, modifier = Modifier.padding(8.dp).size(24.dp))
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(8.dp).size(24.dp))
         }
         Spacer(Modifier.height(8.dp))
         Text(value, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
@@ -384,49 +319,3 @@ private fun formatDuration(minutes: Int): String {
     return if (hours > 0) "${hours}h ${mins}m" else "${mins}m"
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TtsDropdownMenu(
-    items: List<Pair<String, String>>,
-    selectedItem: String?,
-    onItemSelected: (String) -> Unit,
-    defaultLabel: String
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val selectedLabel = items.find { it.first == selectedItem }?.second ?: defaultLabel
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it }
-    ) {
-        OutlinedTextField(
-            value = selectedLabel,
-            onValueChange = {},
-            readOnly = true,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth(),
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text(defaultLabel) },
-                onClick = {
-                    onItemSelected("")
-                    expanded = false
-                }
-            )
-            items.forEach { (id, label) ->
-                DropdownMenuItem(
-                    text = { Text(label) },
-                    onClick = {
-                        onItemSelected(id)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
