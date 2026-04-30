@@ -82,10 +82,19 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                             .onSuccess { stops ->
                                 val enrichedStops = enrichStops(stops, origin, destination)
                                 
+                                val finalOrigin = enrichedStops.find { it.id == origin?.id } ?: origin
+                                val finalDestination = enrichedStops.find { it.id == destination?.id } ?: destination
+                                val finalStatus = enrichedStatus.copy(
+                                    checkin = enrichedStatus.checkin?.copy(
+                                        origin = finalOrigin,
+                                        destination = finalDestination
+                                    )
+                                )
+
                                 _uiState.update {
                                     it.copy(
                                         isLoading = false,
-                                        status = enrichedStatus, // Keep the same enriched status
+                                        status = finalStatus,
                                         stopovers = enrichedStops,
                                         lastUpdated = System.currentTimeMillis()
                                     )
@@ -145,9 +154,19 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
             if (tripId != null) {
                 repo.getStopovers(tripId).onSuccess { stops ->
                     val enrichedStops = enrichStops(stops, origin, destination)
+
+                    val finalOrigin = enrichedStops.find { it.id == origin?.id } ?: origin
+                    val finalDestination = enrichedStops.find { it.id == destination?.id } ?: destination
+                    val finalStatus = enrichedStatus.copy(
+                        checkin = enrichedStatus.checkin?.copy(
+                            origin = finalOrigin,
+                            destination = finalDestination
+                        )
+                    )
+
                     _uiState.update {
                         it.copy(
-                            status = enrichedStatus,
+                            status = finalStatus,
                             stopovers = enrichedStops, 
                             lastUpdated = System.currentTimeMillis()
                         )
@@ -222,7 +241,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
 
                 if (currentDelayMinutes != 0L) {
                     val newRealArrival = plannedArrivalZdt.plusMinutes(currentDelayMinutes).format(formatter)
-                    if (updatedStop.arrivalReal != newRealArrival) {
+                    if (updatedStop.arrivalReal != newRealArrival || updatedStop.isArrivalDelayed != (currentDelayMinutes > 0L)) {
                         updatedStop = updatedStop.copy(
                             arrivalReal = newRealArrival,
                             isArrivalDelayed = currentDelayMinutes > 0
@@ -260,7 +279,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
 
                 if (currentDelayMinutes != 0L) {
                     val newRealDeparture = plannedDepartureZdt.plusMinutes(currentDelayMinutes).format(formatter)
-                    if (updatedStop.departureReal != newRealDeparture) {
+                    if (updatedStop.departureReal != newRealDeparture || updatedStop.isDepartureDelayed != (currentDelayMinutes > 0L)) {
                         updatedStop = updatedStop.copy(
                             departureReal = newRealDeparture,
                             isDepartureDelayed = currentDelayMinutes > 0
