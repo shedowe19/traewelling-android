@@ -38,6 +38,7 @@ data class StatusDetailUiState(
 
     val editingStopoverId: Int? = null,
     val editingStopoverDeparture: String = "",
+    val editingStopoverError: String? = null,
     val manualStopoverDepartures: Map<Int, String> = emptyMap()
 )
 
@@ -54,7 +55,18 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
     private var rawStopovers: List<StopStation> = emptyList()
 
     fun loadStatusDetail(statusId: Int) {
-        currentStatusId = statusId
+        if (currentStatusId != statusId) {
+            currentStatusId = statusId
+            rawStopovers = emptyList()
+            _uiState.update {
+                it.copy(
+                    editingStopoverId = null,
+                    editingStopoverDeparture = "",
+                    editingStopoverError = null,
+                    manualStopoverDepartures = emptyMap()
+                )
+            }
+        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -197,10 +209,10 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
             }
             finalStop
         }
-        return propagateDelays(mappedStops)
+        return propagateDelays(mappedStops, manualDepartures)
     }
 
-    private fun propagateDelays(stops: List<StopStation>): List<StopStation> {
+    private fun propagateDelays(stops: List<StopStation>, manualDepartures: Map<Int, String> = emptyMap()): List<StopStation> {
         var currentDelayMinutes: Long = 0
         var lastDeparturePlanned: ZonedDateTime? = null
         var fractionalRecovery = 0.0
@@ -247,7 +259,13 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                     }
                 }
 
-                if (apiDelayMinutes != null && apiDelayMinutes > currentDelayMinutes) {
+                val hasManualOverride = stop.id != null && manualDepartures.containsKey(stop.id)
+                if (hasManualOverride && apiDelayMinutes != null) {
+                    // Strictly honor manual override
+                    currentDelayMinutes = apiDelayMinutes
+                    fractionalRecovery = 0.0
+                } else if (apiDelayMinutes != null && apiDelayMinutes > currentDelayMinutes) {
+                    // Trust API only if it reports higher delay than expected
                     currentDelayMinutes = apiDelayMinutes
                     fractionalRecovery = 0.0
                 }
@@ -386,11 +404,17 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
             
             repo.updateStatus(statusId, request)
                 .onSuccess { updatedStatus ->
+                    // Reset manual overrides as they might be invalidated by the trip edit
+                    rawStopovers = emptyList()
                     _uiState.update { 
                         it.copy(
                             isUpdating = false, 
                             isEditing = false,
-                            status = updatedStatus
+                            status = updatedStatus,
+                            editingStopoverId = null,
+                            editingStopoverDeparture = "",
+                            editingStopoverError = null,
+                            manualStopoverDepartures = emptyMap()
                         )
                     }
                     // Refresh to get updated stopovers if destination changed
@@ -425,17 +449,18 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
         _uiState.update {
             it.copy(
                 editingStopoverId = id,
-                editingStopoverDeparture = currentManual ?: defaultTime
+                editingStopoverDeparture = currentManual ?: defaultTime,
+                editingStopoverError = null
             )
         }
     }
 
     fun stopEditingStopover() {
-        _uiState.update { it.copy(editingStopoverId = null, editingStopoverDeparture = "") }
+        _uiState.update { it.copy(editingStopoverId = null, editingStopoverDeparture = "", editingStopoverError = null) }
     }
 
     fun updateEditingStopoverDeparture(time: String) {
-        _uiState.update { it.copy(editingStopoverDeparture = time) }
+        _uiState.update { it.copy(editingStopoverDeparture = time, editingStopoverError = null) }
     }
 
     fun modifyEditingStopoverDeparture(minutes: Long) {
@@ -444,7 +469,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
         try {
             val zdt = ZonedDateTime.parse(current)
             val newTime = zdt.plusMinutes(minutes).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            _uiState.update { it.copy(editingStopoverDeparture = newTime) }
+            _uiState.update { it.copy(editingStopoverDeparture = newTime, editingStopoverError = null) }
         } catch (e: Exception) {
             Log.w("StatusDetailViewModel", "Could not parse time for modification: $current", e)
         }
@@ -459,6 +484,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                 ZonedDateTime.parse(time)
             } catch (e: DateTimeParseException) {
                 Log.w("StatusDetailViewModel", "Validation failed for manual time: $time", e)
+                _uiState.update { it.copy(editingStopoverError = "Ungültiges Zeitformat (erwartet: ISO 8601)") }
                 return
             }
         }
@@ -470,7 +496,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
             } else {
                 newMap[id] = time
             }
-            state.copy(manualStopoverDepartures = newMap, editingStopoverId = null, editingStopoverDeparture = "")
+            state.copy(manualStopoverDepartures = newMap, editingStopoverId = null, editingStopoverDeparture = "", editingStopoverError = null)
         }
 
         val origin = _uiState.value.status?.checkin?.origin

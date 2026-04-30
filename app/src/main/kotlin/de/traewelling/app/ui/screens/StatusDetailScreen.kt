@@ -1328,6 +1328,8 @@ private fun EditStopoverDialog(
                     value = uiState.editingStopoverDeparture,
                     onValueChange = onUpdateDeparture,
                     label = { Text("Abfahrt (ISO)") },
+                    isError = uiState.editingStopoverError != null,
+                    supportingText = uiState.editingStopoverError?.let { { Text(it) } },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
