@@ -262,7 +262,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                     val dwellTime = ChronoUnit.MINUTES.between(plannedArrivalZdt, plannedDepartureZdt)
                     if (dwellTime > 1) {
                         val recoveryFromDwell = dwellTime - 1
-                        fractionalRecovery += recoveryFromDwell
+                        fractionalRecovery += recoveryFromDwell * 0.05
                     }
 
                     if (fractionalRecovery >= 1.0) {
