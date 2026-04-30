@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -93,6 +94,16 @@ fun StatusDetailScreen(
             onUpdateArrival = viewModel::updateEditArrival,
             onUpdateDestination = viewModel::updateEditDestination,
             onSave = viewModel::saveStatusEdit
+        )
+    }
+
+    if (uiState.editingStopoverId != null) {
+        EditStopoverDialog(
+            uiState = uiState,
+            onDismiss = viewModel::stopEditingStopover,
+            onUpdateDeparture = viewModel::updateEditingStopoverDeparture,
+            onModifyDeparture = viewModel::modifyEditingStopoverDeparture,
+            onSave = viewModel::saveStopoverDeparture
         )
     }
 
@@ -217,7 +228,8 @@ fun StatusDetailScreen(
                 "CONTENT" -> {
                     StatusDetailContent(
                         uiState = uiState,
-                        onUserClick = onUserClick
+                        onUserClick = onUserClick,
+                        onStopoverClick = { viewModel.startEditingStopover(it) }
                     )
                 }
             }
@@ -228,7 +240,8 @@ fun StatusDetailScreen(
 @Composable
 private fun StatusDetailContent(
     uiState: StatusDetailUiState,
-    onUserClick: (String) -> Unit
+    onUserClick: (String) -> Unit,
+    onStopoverClick: (StopStation) -> Unit
 ) {
     val status = uiState.status ?: return
     val checkin = status.checkin
@@ -379,7 +392,8 @@ private fun StatusDetailContent(
                         isActualLast = index == stopovers.lastIndex,
                         isOrigin = isOrigin,
                         isDestination = isDestination,
-                        isInRange = isInRange
+                        isInRange = isInRange,
+                        onClick = { onStopoverClick(stop) }
                     )
                 }
             }
@@ -643,7 +657,8 @@ private fun StopoverItem(
     isActualLast: Boolean,
     isOrigin: Boolean,
     isDestination: Boolean,
-    isInRange: Boolean
+    isInRange: Boolean,
+    onClick: () -> Unit
 ) {
     // Determine times for this stop
     val stopZdt = remember(stop) { 
@@ -733,7 +748,8 @@ private fun StopoverItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .padding(horizontal = 16.dp),
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.Top
     ) {
         // Timeline column
@@ -1275,6 +1291,63 @@ private fun EditStatusDialog(
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3
                 )
+            }
+        }
+    )
+}
+
+@Composable
+private fun EditStopoverDialog(
+    uiState: StatusDetailUiState,
+    onDismiss: () -> Unit,
+    onUpdateDeparture: (String) -> Unit,
+    onModifyDeparture: (Long) -> Unit,
+    onSave: () -> Unit
+) {
+    val stop = uiState.stopovers.find { it.id == uiState.editingStopoverId }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onSave) {
+                Text("Speichern")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Abbrechen")
+            }
+        },
+        title = { Text("Zeit manuell anpassen") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text("Station: ${stop?.name ?: ""}", style = MaterialTheme.typography.bodyMedium)
+                OutlinedTextField(
+                    value = uiState.editingStopoverDeparture,
+                    onValueChange = onUpdateDeparture,
+                    label = { Text("Abfahrt (ISO)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = { onModifyDeparture(-5) }, modifier = Modifier.weight(1f)) {
+                        Text("-5m")
+                    }
+                    Button(onClick = { onModifyDeparture(-1) }, modifier = Modifier.weight(1f)) {
+                        Text("-1m")
+                    }
+                    Button(onClick = { onModifyDeparture(1) }, modifier = Modifier.weight(1f)) {
+                        Text("+1m")
+                    }
+                    Button(onClick = { onModifyDeparture(5) }, modifier = Modifier.weight(1f)) {
+                        Text("+5m")
+                    }
+                }
             }
         }
     )

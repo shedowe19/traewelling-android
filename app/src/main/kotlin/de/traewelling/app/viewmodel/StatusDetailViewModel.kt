@@ -34,7 +34,11 @@ data class StatusDetailUiState(
     val editDeparture: String = "",
     val editArrival: String = "",
     val editDestinationId: Int? = null,
-    val editVisibility: Int = 0
+    val editVisibility: Int = 0,
+
+    val editingStopoverId: Int? = null,
+    val editingStopoverDeparture: String = "",
+    val manualStopoverDepartures: Map<Int, String> = emptyMap()
 )
 
 class StatusDetailViewModel(application: Application) : AndroidViewModel(application) {
@@ -47,6 +51,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
 
     private var autoRefreshJob: Job? = null
     private var currentStatusId: Int? = null
+    private var rawStopovers: List<StopStation> = emptyList()
 
     fun loadStatusDetail(statusId: Int) {
         currentStatusId = statusId
@@ -80,6 +85,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
                     if (tripId != null) {
                         repo.getStopovers(tripId)
                             .onSuccess { stops ->
+                                rawStopovers = stops
                                 val enrichedStops = enrichStops(stops, origin, destination)
                                 
                                 val finalOrigin = enrichedStops.find { it.id == origin?.id } ?: origin
@@ -153,6 +159,7 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
             val tripId = enrichedStatus.checkin?.trip
             if (tripId != null) {
                 repo.getStopovers(tripId).onSuccess { stops ->
+                    rawStopovers = stops
                     val enrichedStops = enrichStops(stops, origin, destination)
 
                     val finalOrigin = enrichedStops.find { it.id == origin?.id } ?: origin
@@ -177,12 +184,18 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun enrichStops(stops: List<StopStation>, origin: StopStation?, destination: StopStation?): List<StopStation> {
+        val manualDepartures = _uiState.value.manualStopoverDepartures
         val mappedStops = stops.map { stop ->
-            when (stop.id) {
+            var finalStop = when (stop.id) {
                 origin?.id -> if (origin?.id != null) origin else stop
                 destination?.id -> if (destination?.id != null) destination else stop
                 else -> stop
             }
+            val manualDeparture = manualDepartures[finalStop.id]
+            if (manualDeparture != null) {
+                finalStop = finalStop.copy(departureReal = manualDeparture)
+            }
+            finalStop
         }
         return propagateDelays(mappedStops)
     }
@@ -403,6 +416,57 @@ class StatusDetailViewModel(application: Application) : AndroidViewModel(applica
         autoRefreshJob?.cancel()
         currentStatusId = null
         _uiState.value = StatusDetailUiState()
+    }
+
+    fun startEditingStopover(stop: StopStation) {
+        val id = stop.id ?: return
+        val currentManual = _uiState.value.manualStopoverDepartures[id]
+        val defaultTime = stop.departureReal ?: stop.departurePlanned ?: stop.departure ?: ""
+        _uiState.update {
+            it.copy(
+                editingStopoverId = id,
+                editingStopoverDeparture = currentManual ?: defaultTime
+            )
+        }
+    }
+
+    fun stopEditingStopover() {
+        _uiState.update { it.copy(editingStopoverId = null, editingStopoverDeparture = "") }
+    }
+
+    fun updateEditingStopoverDeparture(time: String) {
+        _uiState.update { it.copy(editingStopoverDeparture = time) }
+    }
+
+    fun modifyEditingStopoverDeparture(minutes: Long) {
+        val current = _uiState.value.editingStopoverDeparture
+        if (current.isBlank()) return
+        try {
+            val zdt = ZonedDateTime.parse(current)
+            val newTime = zdt.plusMinutes(minutes).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            _uiState.update { it.copy(editingStopoverDeparture = newTime) }
+        } catch (e: Exception) {
+            Log.w("StatusDetailViewModel", "Could not parse time for modification: $current", e)
+        }
+    }
+
+    fun saveStopoverDeparture() {
+        val id = _uiState.value.editingStopoverId ?: return
+        val time = _uiState.value.editingStopoverDeparture
+        _uiState.update { state ->
+            val newMap = state.manualStopoverDepartures.toMutableMap()
+            if (time.isBlank()) {
+                newMap.remove(id)
+            } else {
+                newMap[id] = time
+            }
+            state.copy(manualStopoverDepartures = newMap, editingStopoverId = null, editingStopoverDeparture = "")
+        }
+
+        val origin = _uiState.value.status?.checkin?.origin
+        val destination = _uiState.value.status?.checkin?.destination
+        val enrichedStops = enrichStops(rawStopovers, origin, destination)
+        _uiState.update { it.copy(stopovers = enrichedStops) }
     }
 
     override fun onCleared() {
